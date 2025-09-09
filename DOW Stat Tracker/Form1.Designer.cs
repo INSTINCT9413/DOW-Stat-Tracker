@@ -29,7 +29,7 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form1));
             this.dataGridView1 = new System.Windows.Forms.DataGridView();
             this.btnLoadJson = new System.Windows.Forms.Button();
             this.btnShowProfile = new System.Windows.Forms.Button();
@@ -333,7 +333,7 @@
             // 
             // rootBindingSource1
             // 
-            this.rootBindingSource1.DataSource = typeof(DOW_Stat_Tracker.MainForm.Root);
+            this.rootBindingSource1.DataSource = typeof(DOW_Stat_Tracker.Form1.Root);
             // 
             // tabPage3
             // 
