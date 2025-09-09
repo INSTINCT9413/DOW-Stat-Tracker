@@ -13,11 +13,14 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement.StartPanel;
 using System.Configuration;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement.Button;
 
 namespace DOW_Stat_Tracker
 {
+    public partial class Form3 : Form
     {
         string updater = Application.StartupPath + "updater.exe";
+        public Form3()
         {
             InitializeComponent();
         }
@@ -53,7 +56,7 @@ namespace DOW_Stat_Tracker
 
         private void checkBox1_CheckedChanged(object sender, EventArgs e)
         {
-            if(checkBox1.Checked == true)
+            if (checkBox1.Checked == true)
             {
                 numericUpDown1.Enabled = true;
                 var settings = Properties.Settings.Default;
@@ -69,13 +72,13 @@ namespace DOW_Stat_Tracker
                 typeof(Settings).GetProperty("AutoRefreshTime")?.SetValue(settings, (short)numericUpDown1.Value);
                 settings.Save();
             }
-           
+
         }
         private void OpenSettingsFolder()
         {
             //string folderPath = Application.UserAppDataPath;
             string configPath = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.PerUserRoamingAndLocal).FilePath;
-            
+
             if (File.Exists(configPath))
             {
                 Process.Start("explorer.exe", $"/select,\"{configPath}\"");
@@ -93,7 +96,7 @@ namespace DOW_Stat_Tracker
 
         private void button1_Click(object sender, EventArgs e)
         {
-            
+
             if (File.Exists(updater))
             {
                 button1.Enabled = true;
@@ -102,7 +105,7 @@ namespace DOW_Stat_Tracker
             else
             {
                 button1.Enabled = false;
-            } 
+            }
         }
     }
 }

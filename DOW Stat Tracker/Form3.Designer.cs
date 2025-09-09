@@ -1,5 +1,6 @@
 ﻿namespace DOW_Stat_Tracker
 {
+    partial class Form3
     {
         /// <summary>
         /// Required designer variable.
@@ -27,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form3));
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.tabPage1 = new System.Windows.Forms.TabPage();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
