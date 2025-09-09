@@ -738,8 +738,6 @@ namespace DOW_Stat_Tracker
 
         private void pictureBox15_Click(object sender, EventArgs e)
         {
-            SettingsForm settings;
-            settings = new SettingsForm();
             settings.Show();
         }
 

@@ -16,10 +16,8 @@ using System.Configuration;
 
 namespace DOW_Stat_Tracker
 {
-    public partial class SettingsForm : Form
     {
         string updater = Application.StartupPath + "updater.exe";
-        public SettingsForm()
         {
             InitializeComponent();
         }
