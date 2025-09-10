@@ -39,7 +39,7 @@ Built in **C# WinForms**, this app fetches data from the official Relic API and 
 
 ## 🚀 Installation
 
-1. Download the latest release from the [Releases](https://github.com/yourusername/DOW-Stat-Tracker/releases) page.  
+1. Download the latest release from the [Releases](https://github.com/INSTINCT9413/DOW-Stat-Tracker/releases) page.  
 2. Extract the `.zip` file.  
 3. Run `DOW_Stat_Tracker.exe`.  
 
@@ -101,7 +101,7 @@ The app includes a **custom WH40k-themed rank system** based on player XP:
 ## 🤝 Contributing
 
 Contributions are welcome!  
-Please open an [issue](https://github.com/yourusername/DOW-Stat-Tracker/issues) or submit a pull request.  
+Please open an [issue](https://github.com/INSTINCT9413/DOW-Stat-Tracker/issues) or submit a pull request.  
 
 ---
 
