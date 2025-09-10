@@ -2,8 +2,8 @@
 
 # Dawn of War Stat Tracker 🎮📊
 
-![License](https://img.shields.io/github/license/yourusername/DOW-Stat-Tracker)
-![Stars](https://img.shields.io/github/stars/yourusername/DOW-Stat-Tracker?style=social)
+![License](https://img.shields.io/github/license/INSTINCT9413/DOW-Stat-Tracker)
+![Stars](https://img.shields.io/github/stars/INSTINCT9413/DOW-Stat-Tracker?style=social)
 ![Build](https://img.shields.io/badge/build-passing-brightgreen)
 
 A **desktop application** for tracking **Dawn of War: Soulstorm (DE)** multiplayer stats.  
