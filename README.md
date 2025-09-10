@@ -27,16 +27,6 @@ Built in **C# WinForms**, this app fetches data from the official Relic API and 
 
 ---
 
-## 📷 Screenshots
-
-> Replace these with actual screenshots later:
-
-![Main UI](screenshots/main_ui.png)  
-![Leaderboard](screenshots/leaderboard.png)  
-![Race Stats](screenshots/race_stats.png)
-
----
-
 ## 🚀 Installation
 
 1. Download the latest release from the [Releases](https://github.com/INSTINCT9413/DOW-Stat-Tracker/releases) page.  
