@@ -107,8 +107,9 @@ Please open an [issue](https://github.com/INSTINCT9413/DOW-Stat-Tracker/issues) 
 
 ## 📜 License
 
-This project is licensed under the **MIT License**.  
-See [LICENSE](LICENSE) for details.  
+This project is distributed under a custom End User License Agreement.  
+Please see the full [EULA here](./EULA.txt).
+
 
 ---
 
