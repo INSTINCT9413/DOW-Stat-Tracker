@@ -2,7 +2,7 @@
 
 # Dawn of War Stat Tracker 🎮📊
 
-![License](https://img.shields.io/github/license/INSTINCT9413/DOW-Stat-Tracker)
+[![EULA](https://img.shields.io/badge/license-Custom%20EULA-blue)](./EULA.txt)
 ![Stars](https://img.shields.io/github/stars/INSTINCT9413/DOW-Stat-Tracker?style=social)
 ![Build](https://img.shields.io/badge/build-passing-brightgreen)
 
