@@ -10,11 +10,13 @@ using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
+using System.Security.Policy;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Xml.Linq;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement.StartPanel;
 
 namespace DOW_Stat_Tracker
 {
@@ -30,6 +32,14 @@ namespace DOW_Stat_Tracker
             public int code { get; set; }
             public string message { get; set; }
             public List<MatchHistoryStat> matchHistoryStats { get; set; }
+            public List<StatGroup> statGroups { get; set; }
+        }
+        public class LeaderboardEntry
+        {
+            public int Rank { get; set; }
+            public string Alias { get; set; }
+            public string Country { get; set; }
+            public int XP { get; set; }
         }
         public class PlayerRank
         {
@@ -84,6 +94,8 @@ namespace DOW_Stat_Tracker
             public long lastmatchdate { get; set; }
             public int highestrank { get; set; }
             public int highestranklevel { get; set; }
+            public int rating { get; set; }
+            public int highestrating { get; set; }
         }
 
         public class MatchHistoryStat
@@ -101,8 +113,11 @@ namespace DOW_Stat_Tracker
             public int observertotal { get; set; }
             public List<MatchHistoryMember> matchhistorymember { get; set; }
         }
-
-        public class MatchHistoryMember
+        public class MatchHistoryReportResults
+        {
+            public int xpgained { get; set; }
+        }
+            public class MatchHistoryMember
         {
             public int matchhistory_id { get; set; }
             public int profile_id { get; set; }
@@ -117,6 +132,7 @@ namespace DOW_Stat_Tracker
             public int oldrating { get; set; }
             public int newrating { get; set; }
             public int reporttype { get; set; }
+            public List<MatchHistoryReportResults> matchhistoryreportresults { get; set; }
         }
 
         // Dictionary for race names
@@ -153,14 +169,21 @@ namespace DOW_Stat_Tracker
 
         private async void btnLoadJson_Click(object sender, EventArgs e)
         {
+            
+            panel1.Bounds = this.ClientRectangle;
+            panel1.Visible = true;
             pictureBox1.Visible = true;
+
+           
             try
             {
                 string username = txtUsername.Text.Trim();
                 if (string.IsNullOrWhiteSpace(username))
                 {
+                    panel1.Visible = false;
                     MessageBox.Show("Please enter a username first.", "Error",
                         MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    
                     return;
                 }
 
@@ -177,6 +200,7 @@ namespace DOW_Stat_Tracker
 
                     if (data == null || data.matchHistoryStats == null || !data.matchHistoryStats.Any())
                     {
+                        panel1.Visible = false;
                         MessageBox.Show("No data found for this player.", "Info",
                             MessageBoxButtons.OK, MessageBoxIcon.Information);
                         return;
@@ -190,6 +214,7 @@ namespace DOW_Stat_Tracker
 
                     if (!automatches.Any())
                     {
+                        panel1.Visible = false;
                         MessageBox.Show("No automatched games found for this player.", "Info",
                             MessageBoxButtons.OK, MessageBoxIcon.Information);
                         return;
@@ -212,8 +237,8 @@ namespace DOW_Stat_Tracker
                         .ToList();
 
                     dgvProfiles.DataSource = players;
-                    label124.Text = $"Found {dgvProfiles.RowCount} games that were automatched";
-                    label125.Text = $"Breakdown of {dgvProfiles.RowCount} games played";
+                    label124.Text = $"Found {dgvProfiles.RowCount} games that were automatched (Work in progress)";
+                    label125.Text = $"Breakdown of {dgvProfiles.RowCount} games played (Work in progress)";
                     // Compute race breakdown
                     var raceBreakdown = players
                         .GroupBy(p => p.Race)
@@ -274,11 +299,14 @@ namespace DOW_Stat_Tracker
             }
             catch (Exception ex)
             {
+                panel1.Visible = false;
                 MessageBox.Show($"Error fetching data: {ex.Message}", "Error",
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
 
             PopulateMainTab();
+            panel1.Visible = false;
+            //panel1.SendToBack();
         }
         public string GetRankName(int xp)
         {
@@ -307,6 +335,368 @@ namespace DOW_Stat_Tracker
     new PlayerRank { Level = 14, MinXP = 9700000, RankName = "Emperor", RankIcon = Properties.Resources.Emperor }
     // add more as you see fit
 };
+        private async Task LoadLeaderboard1v1()
+        {
+            string getLeaderboard = $"https://dow-api.reliclink.com/community/leaderboard/getleaderboard2?count=200&leaderboard_id=3&start=1&sortBy=1&title=dow1-de";
+            using (HttpClient client = new HttpClient())
+            {
+                string json = await client.GetStringAsync(getLeaderboard);
+
+                // Deserialize into Root, not LeaderboardEntry
+                var data = JsonConvert.DeserializeObject<Root>(json);
+
+                var leaderboard = data.statGroups
+                    .Where(g => g.members != null && g.members.Any())
+                    .Select(g => new
+                    {
+                        Alias = g.members.First().alias,
+                        Country = g.members.First().country,
+                        XP = g.members.First().xp
+                    })
+                    .OrderByDescending(x => x.XP)
+                    .Select((x, index) => new LeaderboardEntry
+                    {
+                        Rank = index + 1,
+                        Alias = x.Alias,
+                        Country = x.Country,
+                        XP = x.XP
+                    })
+                    .ToList();
+                var ranked = leaderboard
+    .Select((x, index) =>
+    {
+        var progress = GetRankProgress(x.XP);
+        return new
+        {
+            Rank = index + 1,
+            Alias = x.Alias,
+            Country = x.Country,
+            XP = x.XP,
+            XPToNextPlayer = index == 0 ? 0 : leaderboard[index - 1].XP - x.XP,
+            WH40kRank = progress.CurrentRank,
+            NextRank = progress.NextRank,
+            XPToNextRank = progress.XPToNextRank
+        };
+    })
+    .ToList();
+
+                dg1v1.DataSource = ranked;
+                dg1v1.Columns["Rank"].HeaderText = "Leaderboard Rank";
+                dg1v1.Columns["XP"].HeaderText = "Total XP";
+                dg1v1.Columns["XPToNextPlayer"].HeaderText = "XP to Next Player";
+                dg1v1.Columns["WH40kRank"].HeaderText = "DOW ST Rank";
+                dg1v1.Columns["XPToNextRank"].HeaderText = "XP to Next DOW ST Rank";
+                dg1v1.Columns["NextRank"].HeaderText = "Next DOW ST Rank";
+            }
+        }
+        private async Task LoadLeaderboard2v2()
+        {
+            string getLeaderboard = $"https://dow-api.reliclink.com/community/leaderboard/getleaderboard2?count=200&leaderboard_id=2&start=1&sortBy=1&title=dow1-de";
+            using (HttpClient client = new HttpClient())
+            {
+                string json = await client.GetStringAsync(getLeaderboard);
+
+                // Deserialize into Root, not LeaderboardEntry
+                var data = JsonConvert.DeserializeObject<Root>(json);
+
+                var leaderboard = data.statGroups
+                    .Where(g => g.members != null && g.members.Any())
+                    .Select(g => new
+                    {
+                        Alias = g.members.First().alias,
+                        Country = g.members.First().country,
+                        XP = g.members.First().xp
+                    })
+                    .OrderByDescending(x => x.XP)
+                    .Select((x, index) => new LeaderboardEntry
+                    {
+                        Rank = index + 1,
+                        Alias = x.Alias,
+                        Country = x.Country,
+                        XP = x.XP
+                    })
+                    .ToList();
+                var ranked = leaderboard
+    .Select((x, index) =>
+    {
+        var progress = GetRankProgress(x.XP);
+        return new
+        {
+            Rank = index + 1,
+            Alias = x.Alias,
+            Country = x.Country,
+            XP = x.XP,
+            XPToNextPlayer = index == 0 ? 0 : leaderboard[index - 1].XP - x.XP,
+            WH40kRank = progress.CurrentRank,
+            NextRank = progress.NextRank,
+            XPToNextRank = progress.XPToNextRank
+        };
+    })
+    .ToList();
+
+                dg2v2.DataSource = ranked;
+                dg2v2.Columns["Rank"].HeaderText = "Leaderboard Rank";
+                dg2v2.Columns["XP"].HeaderText = "Total XP";
+                dg2v2.Columns["XPToNextPlayer"].HeaderText = "XP to Next Player";
+                dg2v2.Columns["WH40kRank"].HeaderText = "DOW ST Rank";
+                dg2v2.Columns["XPToNextRank"].HeaderText = "XP to Next DOW ST Rank";
+                dg2v2.Columns["NextRank"].HeaderText = "Next DOW ST Rank";
+            }
+        }
+        private async Task LoadLeaderboard3v3()
+        {
+            string getLeaderboard = $"https://dow-api.reliclink.com/community/leaderboard/getleaderboard2?count=200&leaderboard_id=1&start=1&sortBy=1&title=dow1-de";
+            using (HttpClient client = new HttpClient())
+            {
+                string json = await client.GetStringAsync(getLeaderboard);
+
+                // Deserialize into Root, not LeaderboardEntry
+                var data = JsonConvert.DeserializeObject<Root>(json);
+
+                var leaderboard = data.statGroups
+                    .Where(g => g.members != null && g.members.Any())
+                    .Select(g => new
+                    {
+                        Alias = g.members.First().alias,
+                        Country = g.members.First().country,
+                        XP = g.members.First().xp
+                    })
+                    .OrderByDescending(x => x.XP)
+                    .Select((x, index) => new LeaderboardEntry
+                    {
+                        Rank = index + 1,
+                        Alias = x.Alias,
+                        Country = x.Country,
+                        XP = x.XP
+                    })
+                    .ToList();
+                var ranked = leaderboard
+    .Select((x, index) =>
+    {
+        var progress = GetRankProgress(x.XP);
+        return new
+        {
+            Rank = index + 1,
+            Alias = x.Alias,
+            Country = x.Country,
+            XP = x.XP,
+            XPToNextPlayer = index == 0 ? 0 : leaderboard[index - 1].XP - x.XP,
+            WH40kRank = progress.CurrentRank,
+            NextRank = progress.NextRank,
+            XPToNextRank = progress.XPToNextRank
+        };
+    })
+    .ToList();
+
+                dg3v3.DataSource = ranked;
+                dg3v3.Columns["Rank"].HeaderText = "Leaderboard Rank";
+                dg3v3.Columns["XP"].HeaderText = "Total XP";
+                dg3v3.Columns["XPToNextPlayer"].HeaderText = "XP to Next Player";
+                dg3v3.Columns["WH40kRank"].HeaderText = "DOW ST Rank";
+                dg3v3.Columns["XPToNextRank"].HeaderText = "XP to Next DOW ST Rank";
+                dg3v3.Columns["NextRank"].HeaderText = "Next DOW ST Rank";
+            }
+        }
+        private void dg1v1_CellPainting(object sender, DataGridViewCellPaintingEventArgs e)
+        {
+            DataGridViewProgressHelper.HandleCellPainting(
+        sender, e,
+        "XP",               // column with XP
+        "XPToNextRank",     // column with XP to next rank
+        "XPToNextPlayer",   // column with XP to next player
+        Ranks               // pass in your rank list
+    );
+        }
+        private void dg2v2_CellPainting(object sender, DataGridViewCellPaintingEventArgs e)
+        {
+            DataGridViewProgressHelper.HandleCellPainting(
+        sender, e,
+        "XP",               // column with XP
+        "XPToNextRank",     // column with XP to next rank
+        "XPToNextPlayer",   // column with XP to next player
+        Ranks               // pass in your rank list
+    );
+        }
+        private void dg3v3_CellPainting(object sender, DataGridViewCellPaintingEventArgs e)
+        {
+            DataGridViewProgressHelper.HandleCellPainting(
+        sender, e,
+        "XP",               // column with XP
+        "XPToNextRank",     // column with XP to next rank
+        "XPToNextPlayer",   // column with XP to next player
+        Ranks               // pass in your rank list
+    );
+        }
+        // Generic helper you can reuse (adjust names if you already have a helper)
+        public static class DataGridViewProgressHelper
+        {
+            public static void HandleCellPainting(
+                object sender,
+                DataGridViewCellPaintingEventArgs e,
+                string xpColumnName,
+                string xpToNextRankColumn,
+                string xpToNextPlayerColumn,
+                List<PlayerRank> ranks)
+            {
+                if (e.RowIndex < 0) return;
+                if (!(sender is DataGridView grid)) return;
+
+                // ---------- XP to Next Rank (green) ----------
+                if (!string.IsNullOrEmpty(xpToNextRankColumn)
+                    && grid.Columns.Contains(xpToNextRankColumn)
+                    && e.ColumnIndex == grid.Columns[xpToNextRankColumn].Index)
+                {
+                    e.PaintBackground(e.CellBounds, true);
+
+                    int xpToNextRank = SafeInt(e.Value);
+                    int currXP = SafeInt(grid.Rows[e.RowIndex].Cells[xpColumnName].Value);
+
+                    int totalGap = GetTotalGapToNextRank(currXP, ranks);
+                    float percentRank = totalGap > 0 ? (float)(totalGap - xpToNextRank) / totalGap : 1f;
+
+                    string textRank = $"{xpToNextRank:N0} XP ({percentRank:P0})";
+                    DrawProgress(e, percentRank, textRank, Brushes.LightGreen);
+                }
+
+                // ---------- XP to Next Player (blue) ----------
+                if (!string.IsNullOrEmpty(xpToNextPlayerColumn)
+                    && grid.Columns.Contains(xpToNextPlayerColumn)
+                    && e.ColumnIndex == grid.Columns[xpToNextPlayerColumn].Index)
+                {
+                    e.PaintBackground(e.CellBounds, true);
+
+                    int xpToNextPlayer = SafeInt(e.Value); // remaining to catch the player above
+                    int currXP = SafeInt(grid.Rows[e.RowIndex].Cells[xpColumnName].Value);
+                    int aboveXP = e.RowIndex > 0
+                        ? SafeInt(grid.Rows[e.RowIndex - 1].Cells[xpColumnName].Value)
+                        : currXP;
+
+                    // percent = how close currXP is to aboveXP (1.0 means equal or higher)
+                    float percentPlayer = aboveXP > 0 ? (float)currXP / (float)aboveXP : 1f;
+
+                    // Ensure percent is clamped between 0 and 1
+                    percentPlayer = Math.Min(Math.Max(percentPlayer, 0f), 1f);
+
+                    // Text shows remaining XP and percent (percent computed from curr/above)
+                    string textPlayer = $"{xpToNextPlayer:N0} XP ({percentPlayer:P0})";
+
+                    DrawProgress(e, percentPlayer, textPlayer, Brushes.LightCyan);
+                }
+            }
+
+            private static void DrawProgress(DataGridViewCellPaintingEventArgs e, float percent, string text, Brush fillBrush)
+            {
+                percent = Math.Min(Math.Max(percent, 0f), 1f); // clamp
+
+                Rectangle inner = new Rectangle(
+                    e.CellBounds.X + 2,
+                    e.CellBounds.Y + 2,
+                    (int)((e.CellBounds.Width - 4) * percent),
+                    e.CellBounds.Height - 4);
+
+                // Background (light gray)
+                using (Brush back = new SolidBrush(Color.FromArgb(240, 240, 240)))
+                    e.Graphics.FillRectangle(back, e.CellBounds.X + 2, e.CellBounds.Y + 2, e.CellBounds.Width - 4, e.CellBounds.Height - 4);
+
+                // Filled portion
+                e.Graphics.FillRectangle(fillBrush, inner);
+
+                // Border
+                e.Graphics.DrawRectangle(Pens.Black, e.CellBounds.X + 2, e.CellBounds.Y + 2,
+                                         e.CellBounds.Width - 4, e.CellBounds.Height - 4);
+
+                // Make text white if bar is dark enough for readability
+                Color textColor = percent > 0.6f ? Color.Black : e.CellStyle.ForeColor;
+                TextRenderer.DrawText(e.Graphics, text, e.CellStyle.Font, e.CellBounds, textColor,
+                    TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter);
+
+                e.Handled = true;
+            }
+
+            private static int GetTotalGapToNextRank(int currentXP, List<PlayerRank> ranks)
+            {
+                var current = ranks.Where(r => currentXP >= r.MinXP).OrderByDescending(r => r.MinXP).FirstOrDefault();
+                var next = ranks.Where(r => currentXP < r.MinXP).OrderBy(r => r.MinXP).FirstOrDefault();
+                if (current != null && next != null)
+                    return next.MinXP - current.MinXP;
+                return 0;
+            }
+
+            private static int SafeInt(object o)
+            {
+                if (o == null) return 0;
+                if (o is int i) return i;
+                int.TryParse(o.ToString(), out int v);
+                return v;
+            }
+        }
+
+
+        public (string CurrentRank, string NextRank, int XPToNextRank) GetRankProgress(int xp)
+        {
+            // Find current rank
+            var current = Ranks
+                .Where(r => xp >= r.MinXP)
+                .OrderByDescending(r => r.MinXP)
+                .FirstOrDefault();
+
+            // Find next rank
+            var next = Ranks
+                .Where(r => r.MinXP > (current?.MinXP ?? 0))
+                .OrderBy(r => r.MinXP)
+                .FirstOrDefault();
+
+            if (next != null)
+            {
+                return (current?.RankName ?? "Unranked", next.RankName, next.MinXP - xp);
+            }
+            else
+            {
+                // Already at max rank
+                return (current?.RankName ?? "Unranked", "Max Rank", 0);
+            }
+        }
+        public static class DataGridViewSearchHelper
+        {
+            /// <summary>
+            /// Searches for a given alias in a DataGridView and highlights or selects matching rows.
+            /// </summary>
+            public static void SearchAndHighlight(DataGridView grid, string aliasColumn, string searchText, bool selectRow = true)
+            {
+                if (string.IsNullOrWhiteSpace(searchText)) return;
+
+                string lowered = searchText.Trim().ToLower();
+
+                foreach (DataGridViewRow row in grid.Rows)
+                {
+                    if (row.Cells[aliasColumn].Value == null) continue;
+
+                    string alias = row.Cells[aliasColumn].Value.ToString().ToLower();
+
+                    if (alias.Contains(lowered))
+                    {
+                        if (selectRow)
+                        {
+                            row.Selected = true;
+                            grid.FirstDisplayedScrollingRowIndex = row.Index; // auto scroll to match
+                        }
+                        else
+                        {
+                            // Example: highlight by changing background color
+                            row.DefaultCellStyle.BackColor = Color.Yellow;
+                            row.DefaultCellStyle.ForeColor = Color.Black;
+                        }
+                    }
+                    else if (!selectRow)
+                    {
+                        // Reset style if highlight mode
+                        row.DefaultCellStyle.BackColor = grid.DefaultCellStyle.BackColor;
+                        row.DefaultCellStyle.ForeColor = grid.DefaultCellStyle.ForeColor;
+                    }
+                }
+            }
+        }
+
         private async Task LoadPersonalStats(string username)
         {
             try
@@ -352,6 +742,8 @@ namespace DOW_Stat_Tracker
                     var tau = stats.FirstOrDefault(s => s.leaderboard_id == 9);
 
                     //Chaos Stats
+                    int chaostotal = chaos != null ? chaos.wins + chaos.losses : 0;
+                    label136.Text = $"Total Games Played: {chaostotal}";
                     label1.Text = chaos != null ? $"Total Wins: {chaos.wins}" : "Total Wins: N/A";
                     label2.Text = chaos != null ? $"Total Losses: {chaos.losses}" : "Total Losses: N/A";
                     label3.Text = chaos != null ? $"Current Streak: {chaos.streak}" : "Current Streak: N/A";
@@ -368,7 +760,12 @@ namespace DOW_Stat_Tracker
 
                     label12.Text = chaos != null ? $"Highest Rank: {chaos.highestrank}" : "Highest Rank: N/A";
                     label13.Text = chaos != null ? $"Highest Rank Level: {chaos.highestranklevel}" : "Highest Rank Level: N/A";
+                    label134.Text = chaos != null? $"Current Rating: {chaos.rating}" : "Current Rating: N/A";
+                    label135.Text = chaos != null ? $"Highest Rating: {chaos.highestrating}" : "Highest Rating: N/A";
+
                     //Dark Eldar Stats
+                    int darkeldartotal = darkEldar != null ? darkEldar.wins + darkEldar.losses : 0;
+                    label139.Text = $"Total Games Played: {darkeldartotal}";
                     label26.Text = darkEldar != null ? $"Total Wins: {darkEldar.wins}" : "Total Wins: N/A";
                     label25.Text = darkEldar != null ? $"Total Losses: {darkEldar.losses}" : "Total Losses: N/A";
                     label24.Text = darkEldar != null ? $"Current Streak: {darkEldar.streak}" : "Current Streak: N/A";
@@ -385,8 +782,12 @@ namespace DOW_Stat_Tracker
 
                     label15.Text = darkEldar != null ? $"Highest Rank: {darkEldar.highestrank}" : "Highest Rank: N/A";
                     label14.Text = darkEldar != null ? $"Highest Rank Level: {darkEldar.highestranklevel}" : "Highest Rank Level: N/A";
+                    label137.Text = darkEldar != null ? $"Current Rating: {darkEldar.rating}" : "Current Rating: N/A";
+                    label138.Text = darkEldar != null ? $"Highest Rating: {darkEldar.highestrating}" : "Highest Rating: N/A";
 
                     //Eldar Stats
+                    int eldartotal = eldar != null ? eldar.wins + eldar.losses : 0;
+                    label142.Text = $"Total Games Played: {eldartotal}";
                     label39.Text = eldar != null ? $"Total Wins: {eldar.wins}" : "Total Wins: N/A";
                     label38.Text = eldar != null ? $"Total Losses: {eldar.losses}" : "Total Losses: N/A";
                     label37.Text = eldar != null ? $"Current Streak: {eldar.streak}" : "Current Streak: N/A";
@@ -403,8 +804,12 @@ namespace DOW_Stat_Tracker
 
                     label28.Text = eldar != null ? $"Highest Rank: {eldar.highestrank}" : "Highest Rank: N/A";
                     label27.Text = eldar != null ? $"Highest Rank Level: {eldar.highestranklevel}" : "Highest Rank Level: N/A";
+                    label140.Text = eldar != null ? $"Current Rating: {eldar.rating}" : "Current Rating: N/A";
+                    label141.Text = eldar != null ? $"Highest Rating: {eldar.highestrating}" : "Highest Rating: N/A";
 
                     //Imperial Guard Stats
+                    int imperialguardtotal = imperialGuard != null ? imperialGuard.wins + imperialGuard.losses : 0;
+                    label145.Text = $"Total Games Played: {imperialguardtotal}";
                     label52.Text = imperialGuard != null ? $"Total Wins: {imperialGuard.wins}" : "Total Wins: N/A";
                     label51.Text = imperialGuard != null ? $"Total Losses: {imperialGuard.losses}" : "Total Losses: N/A";
                     label50.Text = imperialGuard != null ? $"Current Streak: {imperialGuard.streak}" : "Current Streak: N/A";
@@ -421,8 +826,12 @@ namespace DOW_Stat_Tracker
 
                     label41.Text = eldar != null ? $"Highest Rank: {imperialGuard.highestrank}" : "Highest Rank: N/A";
                     label40.Text = imperialGuard != null ? $"Highest Rank Level: {imperialGuard.highestranklevel}" : "Highest Rank Level: N/A";
+                    label143.Text = imperialGuard != null ? $"Current Rating: {imperialGuard.rating}" : "Current Rating: N/A";
+                    label144.Text = imperialGuard != null ? $"Highest Rating: {imperialGuard.highestrating}" : "Highest Rating: N/A";
 
                     //Necrons Stats
+                    int necrontotal = necrons != null ? necrons.wins + necrons.losses : 0;
+                    label148.Text = $"Total Games Played: {necrontotal}";
                     label65.Text = necrons != null ? $"Total Wins: {necrons.wins}" : "Total Wins: N/A";
                     label64.Text = necrons != null ? $"Total Losses: {necrons.losses}" : "Total Losses: N/A";
                     label63.Text = necrons != null ? $"Current Streak: {necrons.streak}" : "Current Streak: N/A";
@@ -439,8 +848,13 @@ namespace DOW_Stat_Tracker
 
                     label54.Text = necrons != null ? $"Highest Rank: {necrons.highestrank}" : "Highest Rank: N/A";
                     label53.Text = necrons != null ? $"Highest Rank Level: {necrons.highestranklevel}" : "Highest Rank Level: N/A";
+                    label146.Text = necrons != null ? $"Current Rating: {necrons.rating}" : "Current Rating: N/A";
+                    label147.Text = necrons != null ? $"Highest Rating: {necrons.highestrating}" : "Highest Rating: N/A";
+
 
                     //Orks Stats
+                    int orkstotal = orks != null ? orks.wins + orks.losses : 0;
+                    label151.Text = $"Total Games Played: {orkstotal}";
                     label78.Text = orks != null ? $"Total Wins: {orks.wins}" : "Total Wins: N/A";
                     label77.Text = orks != null ? $"Total Losses: {orks.losses}" : "Total Losses: N/A";
                     label76.Text = orks != null ? $"Current Streak: {orks.streak}" : "Current Streak: N/A";
@@ -457,8 +871,12 @@ namespace DOW_Stat_Tracker
 
                     label67.Text = orks != null ? $"Highest Rank: {orks.highestrank}" : "Highest Rank: N/A";
                     label66.Text = orks != null ? $"Highest Rank Level: {orks.highestranklevel}" : "Highest Rank Level: N/A";
+                    label149.Text = orks != null ? $"Current Rating: {orks.rating}" : "Current Rating: N/A";
+                    label150.Text = orks != null ? $"Highest Rating: {orks.highestrating}" : "Highest Rating: N/A";
 
                     //Sisters of Battle Stats
+                    int sisterstotal = sisters != null ? sisters.wins + sisters.losses : 0;
+                    label154.Text = $"Total Games Played: {sisterstotal}";  
                     label91.Text = sisters != null ? $"Total Wins: {sisters.wins}" : "Total Wins: N/A";
                     label90.Text = sisters != null ? $"Total Losses: {sisters.losses}" : "Total Losses: N/A";
                     label89.Text = sisters != null ? $"Current Streak: {sisters.streak}" : "Current Streak: N/A";
@@ -475,8 +893,13 @@ namespace DOW_Stat_Tracker
 
                     label80.Text = sisters != null ? $"Highest Rank: {sisters.highestrank}" : "Highest Rank: N/A";
                     label79.Text = sisters != null ? $"Highest Rank Level: {sisters.highestranklevel}" : "Highest Rank Level: N/A";
+                    label152.Text = sisters != null ? $"Current Rating: {sisters.rating}" : "Current Rating: N/A";
+                    label153.Text = sisters != null ? $"Highest Rating: {sisters.highestrating}" : "Highest Rating: N/A";
+
 
                     //Space Marines Stats
+                    int spacemarinestotal = spaceMarines != null ? spaceMarines.wins + spaceMarines.losses : 0;
+                    label157.Text = $"Total Games Played: {spacemarinestotal}";
                     label104.Text = spaceMarines != null ? $"Total Wins: {spaceMarines.wins}" : "Total Wins: N/A";
                     label103.Text = spaceMarines != null ? $"Total Losses: {spaceMarines.losses}" : "Total Losses: N/A";
                     label102.Text = spaceMarines != null ? $"Current Streak: {spaceMarines.streak}" : "Current Streak: N/A";
@@ -493,8 +916,13 @@ namespace DOW_Stat_Tracker
 
                     label93.Text = spaceMarines != null ? $"Highest Rank: {spaceMarines.highestrank}" : "Highest Rank: N/A";
                     label92.Text = spaceMarines != null ? $"Highest Rank Level: {spaceMarines.highestranklevel}" : "Highest Rank Level: N/A";
+                    label155.Text = spaceMarines != null ? $"Current Rating: {spaceMarines.rating}" : "Current Rating: N/A";
+                    label156.Text = spaceMarines != null ? $"Highest Rating: {spaceMarines.highestrating}" : "Highest Rating: N/A";
+
 
                     //Tau Stats
+                    int tautotal = tau != null ? tau.wins + tau.losses : 0;
+                    label160.Text = $"Total Games Played: {tautotal}";
                     label117.Text = tau != null ? $"Total Wins: {tau.wins}" : "Total Wins: N/A";
                     label116.Text = tau != null ? $"Total Losses: {tau.losses}" : "Total Losses: N/A";
                     label115.Text = tau != null ? $"Current Streak: {tau.streak}" : "Current Streak: N/A";
@@ -511,8 +939,38 @@ namespace DOW_Stat_Tracker
 
                     label106.Text = tau != null ? $"Highest Rank: {tau.highestrank}" : "Highest Rank: N/A";
                     label105.Text = tau != null ? $"Highest Rank Level: {tau.highestranklevel}" : "Highest Rank Level: N/A";
+                    label158.Text = tau != null ? $"Current Rating: {tau.rating}" : "Current Rating: N/A";
+                    label159.Text = tau != null ? $"Highest Rating: {tau.highestrating}" : "Highest Rating: N/A";
+
                     int totalGames = totalWins + totalLosses;
                     // Example: set to labels
+                    
+                    var raceTotals = new Dictionary<string, int>
+                    {
+                        { "Chaos", chaostotal },
+                        { "Space Marines", spacemarinestotal },
+                        { "Tau", tautotal },
+                        { "Orks", orkstotal },
+                        { "Eldar", eldartotal },
+                        { "Dark Eldar", darkeldartotal },
+                        { "Necrons", necrontotal },
+                        { "Imperial Guard", imperialguardtotal },
+                        { "Sisters of Battle", sisterstotal }
+                    };
+                    
+                    var favoriteRace = raceTotals.OrderByDescending(r => r.Value).FirstOrDefault();
+                    
+                    if(favoriteRace.Value > 0)
+                    {
+                        lblFavoriteRace.Text = $"Favorite Race: {favoriteRace.Key} ({favoriteRace.Value} games)";
+                    }
+                    else
+                    {
+                        lblFavoriteRace.Text = "No Games Played Yet";
+                    }
+                    
+                    
+                    
                     label129.Text = $"Total Games: {totalGames}";
                     Wins.Text = $"Total Wins: {totalWins}";
                     Losses.Text = $"Total Losses: {totalLosses}";
@@ -544,7 +1002,7 @@ namespace DOW_Stat_Tracker
                     {
                         double progress = (double)(playerXP - Ranks.Where(r => r.MinXP <= playerXP).Max(r => r.MinXP)) /
                                           (nextRank.MinXP - Ranks.Where(r => r.MinXP <= playerXP).Max(r => r.MinXP));
-                        label123.Text = $"Next Rank: {nextRank.RankName} (at {playerXP} of {nextRank.MinXP} XP)";
+                        label123.Text = $"Next Rank: {nextRank.RankName}\n\r(at {playerXP} of {nextRank.MinXP} XP)";
                         progressBar1.Value = (int)(progress * 100);
                     }
 
@@ -673,7 +1131,7 @@ namespace DOW_Stat_Tracker
 
             // Favorite Race by matches played
             var favorite = raceStats.OrderByDescending(x => x.MatchesPlayed).FirstOrDefault();
-            lblFavoriteRace.Text = favorite != null ? $"Favorite Race: {favorite.RaceName} ({favorite.MatchesPlayed} recent matches)" : "N/A";
+            lblFavoriteRecRace.Text = favorite != null ? $"Recently Played Race: {favorite.RaceName} ({favorite.MatchesPlayed} matches)" : "N/A";
 
             // Best Race by WinRate
             var bestWinRate = raceStats.OrderByDescending(x => x.WinRate).FirstOrDefault();
@@ -684,10 +1142,13 @@ namespace DOW_Stat_Tracker
             lblBestRaceRating.Text = bestRating != null ? $"Best AVG Rating: {bestRating.RaceName} ({bestRating.AvgRating:F0})" : "N/A";
         }
 
-        private void Form1_Load(object sender, EventArgs e)
+        private async void Form1_Load(object sender, EventArgs e)
         {
             this.Text = "DOW Stat Tracker by INSTINCT";
             this.Icon = Properties.Resources.logo1;
+            dg1v1.CellPainting += dg1v1_CellPainting;
+            dg2v2.CellPainting += dg2v2_CellPainting;
+            dg3v3.CellPainting += dg3v3_CellPainting;
             txtUsername.Text = Properties.Settings.Default.LastUsername;
             if (Properties.Settings.Default.AutoRefresh == true)
             {
@@ -708,6 +1169,9 @@ namespace DOW_Stat_Tracker
             {
                 btnLoadJson.PerformClick();
             }
+            await LoadLeaderboard1v1();
+            await LoadLeaderboard2v2();
+            await LoadLeaderboard3v3();
         }
 
         private void pictureBox11_Click(object sender, EventArgs e)
@@ -738,6 +1202,8 @@ namespace DOW_Stat_Tracker
 
         private void pictureBox15_Click(object sender, EventArgs e)
         {
+            Form3 settings;
+            settings = new Form3();
             settings.Show();
         }
 
@@ -749,6 +1215,54 @@ namespace DOW_Stat_Tracker
         private void label129_Click(object sender, EventArgs e)
         {
 
+        }
+
+        private async void button1_Click(object sender, EventArgs e)
+        {
+            panel1v1.Location = new Point(dg1v1.Location.X, dg1v1.Location.Y);
+            panel1v1.Bounds = dg1v1.Bounds;
+            panel1v1.BackColor = Color.FromArgb(128, Color.Gray); // semi-transparent black
+            panel1v1.Visible = true;
+            await LoadLeaderboard1v1();
+            panel1v1.Visible = false;
+        }
+
+        private async void button2_Click(object sender, EventArgs e)
+        {
+            panel2v2.Location = new Point(dg2v2.Location.X, dg2v2.Location.Y);
+            panel2v2.Bounds = dg1v1.Bounds;
+            panel2v2.BackColor = Color.FromArgb(128, Color.Gray); // semi-transparent black
+            panel2v2.Visible = true;
+            await LoadLeaderboard2v2();
+            panel2v2.Visible = false;
+        }
+
+        private async void button3_Click(object sender, EventArgs e)
+        {
+            panel3v3.Location = new Point(dg2v2.Location.X, dg2v2.Location.Y);
+            panel3v3.Bounds = dg3v3 .Bounds;
+            panel3v3.BackColor = Color.FromArgb(128, Color.Gray); // semi-transparent black
+            panel3v3.Visible = true;
+            await LoadLeaderboard3v3();
+            panel3v3.Visible = false;
+        }
+
+        private void button4_Click(object sender, EventArgs e)
+        {
+            string searchAlias = textBox1.Text;
+            DataGridViewSearchHelper.SearchAndHighlight(dg1v1, "Alias", searchAlias, selectRow: true);
+        }
+
+        private void button6_Click(object sender, EventArgs e)
+        {
+            string searchAlias = textBox3.Text;
+            DataGridViewSearchHelper.SearchAndHighlight(dg3v3, "Alias", searchAlias, selectRow: true);
+        }
+
+        private void button5_Click(object sender, EventArgs e)
+        {
+            string searchAlias = textBox2.Text;
+            DataGridViewSearchHelper.SearchAndHighlight(dg2v2, "Alias", searchAlias, selectRow: true);
         }
     }
 }

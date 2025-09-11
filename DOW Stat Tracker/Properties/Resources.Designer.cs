@@ -273,6 +273,16 @@ namespace DOW_Stat_Tracker.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap loading5 {
+            get {
+                object obj = ResourceManager.GetObject("loading5", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap logo {
             get {
                 object obj = ResourceManager.GetObject("logo", resourceCulture);
@@ -326,6 +336,16 @@ namespace DOW_Stat_Tracker.Properties {
         internal static System.Drawing.Bitmap Relic_entertainment_logo_svg {
             get {
                 object obj = ResourceManager.GetObject("Relic-entertainment-logo.svg", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap ring_alt {
+            get {
+                object obj = ResourceManager.GetObject("ring-alt", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }

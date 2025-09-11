@@ -107,5 +107,23 @@ namespace DOW_Stat_Tracker
                 button1.Enabled = false;
             }
         }
+
+        private void numericUpDown1_ValueChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void button3_Click(object sender, EventArgs e)
+        {
+            if (File.Exists(Application.StartupPath + @"\License.txt")) 
+            { 
+                Process.Start(Application.StartupPath + @"\License.txt");
+            }
+            else
+            {
+                MessageBox.Show("License file not found.", "Error",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
     }
 }
