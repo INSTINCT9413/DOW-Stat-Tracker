@@ -33,7 +33,9 @@ namespace DOW_Stat_Tracker
             public string message { get; set; }
             public List<MatchHistoryStat> matchHistoryStats { get; set; }
             public List<StatGroup> statGroups { get; set; }
+            public List<LeaderboardStat> leaderboardStats { get; set; }
         }
+
         public class LeaderboardEntry
         {
             public int Rank { get; set; }
@@ -96,6 +98,20 @@ namespace DOW_Stat_Tracker
             public int highestranklevel { get; set; }
             public int rating { get; set; }
             public int highestrating { get; set; }
+        }
+        public class LeaderboardPlayer
+        {
+            public string Alias { get; set; }
+            public string Country { get; set; }
+            public int XP { get; set; }
+            public int Rating { get; set; }
+            public int Wins { get; set; }
+            public int Losses { get; set; }
+            public int APIRank { get; set; }
+            public string CurrentRank { get; set; }
+            public string NextRank { get; set; }
+            public int XPToNextRank { get; set; }
+            public int XPToNextPlayer { get; set; }
         }
 
         public class MatchHistoryStat
@@ -170,8 +186,8 @@ namespace DOW_Stat_Tracker
         private async void btnLoadJson_Click(object sender, EventArgs e)
         {
             
-            panel1.Bounds = this.ClientRectangle;
-            panel1.Visible = true;
+            panel4v40.Bounds = this.ClientRectangle;
+            panel4v40.Visible = true;
             pictureBox1.Visible = true;
 
            
@@ -180,7 +196,7 @@ namespace DOW_Stat_Tracker
                 string username = txtUsername.Text.Trim();
                 if (string.IsNullOrWhiteSpace(username))
                 {
-                    panel1.Visible = false;
+                    panel4v40.Visible = false;
                     MessageBox.Show("Please enter a username first.", "Error",
                         MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     
@@ -200,7 +216,7 @@ namespace DOW_Stat_Tracker
 
                     if (data == null || data.matchHistoryStats == null || !data.matchHistoryStats.Any())
                     {
-                        panel1.Visible = false;
+                        panel4v40.Visible = false;
                         MessageBox.Show("No data found for this player.", "Info",
                             MessageBoxButtons.OK, MessageBoxIcon.Information);
                         return;
@@ -214,7 +230,7 @@ namespace DOW_Stat_Tracker
 
                     if (!automatches.Any())
                     {
-                        panel1.Visible = false;
+                        panel4v40.Visible = false;
                         MessageBox.Show("No automatched games found for this player.", "Info",
                             MessageBoxButtons.OK, MessageBoxIcon.Information);
                         return;
@@ -299,13 +315,13 @@ namespace DOW_Stat_Tracker
             }
             catch (Exception ex)
             {
-                panel1.Visible = false;
+                panel4v40.Visible = false;
                 MessageBox.Show($"Error fetching data: {ex.Message}", "Error",
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
 
             PopulateMainTab();
-            panel1.Visible = false;
+            panel4v40.Visible = false;
             //panel1.SendToBack();
         }
         public string GetRankName(int xp)
@@ -337,164 +353,1373 @@ namespace DOW_Stat_Tracker
 };
         private async Task LoadLeaderboard1v1()
         {
-            string getLeaderboard = $"https://dow-api.reliclink.com/community/leaderboard/getleaderboard2?count=200&leaderboard_id=3&start=1&sortBy=1&title=dow1-de";
+            string url = "https://dow-api.reliclink.com/community/leaderboard/getleaderboard2?count=200&leaderboard_id=1&start=1&sortBy=1&title=dow1-de";
             using (HttpClient client = new HttpClient())
             {
-                string json = await client.GetStringAsync(getLeaderboard);
+                string json = await client.GetStringAsync(url);
 
-                // Deserialize into Root, not LeaderboardEntry
                 var data = JsonConvert.DeserializeObject<Root>(json);
 
+                // Build leaderboard with both API stats + WH40k custom rank system
                 var leaderboard = data.statGroups
                     .Where(g => g.members != null && g.members.Any())
-                    .Select(g => new
+                    .Select(g =>
                     {
-                        Alias = g.members.First().alias,
-                        Country = g.members.First().country,
-                        XP = g.members.First().xp
+                        var m = g.members.First();
+                        var stats = data.leaderboardStats.FirstOrDefault(s => s.statgroup_id == g.id);
+
+                        // Use your GetRankProgress method
+                        var progress = GetRankProgress(m.xp);
+
+                        return new
+                        {
+                            Alias = m.alias,
+                            Country = m.country.ToUpper(),
+                            XP = m.xp,
+
+                            // API Stats
+                            Rating = stats?.rating ?? 0,
+                            Wins = stats?.wins ?? 0,
+                            Losses = stats?.losses ?? 0,
+                            APIRank = stats?.rank ?? 0,
+
+                            // WH40k Rank System
+                            CurrentRank = progress.CurrentRank,
+                            NextRank = progress.NextRank,
+                            XPToNextRank = progress.XPToNextRank
+                        };
                     })
-                    .OrderByDescending(x => x.XP)
-                    .Select((x, index) => new LeaderboardEntry
+                    .OrderByDescending(x => x.Rating) // ✅ rank by Rating
+                    .ToList();
+
+                // Add XP-to-Next-Player after sorting
+                var withNextPlayer = leaderboard
+                    .Select((x, index) => new
                     {
-                        Rank = index + 1,
-                        Alias = x.Alias,
-                        Country = x.Country,
-                        XP = x.XP
+                        APIRank = x.APIRank,
+                        x.Alias,
+                        x.Country,
+                        x.Rating,
+                        x.Wins,
+                        x.Losses,
+                        x.XP,
+                        XPToNextPlayer = index == 0
+            ? 0
+            : Math.Max(0, leaderboard[index - 1].XP - x.XP),
+
+                        CurrentRank = x.CurrentRank,
+                        NextRank = x.NextRank,
+                        XPToNextRank = x.XPToNextRank
+
                     })
                     .ToList();
-                var ranked = leaderboard
-    .Select((x, index) =>
-    {
-        var progress = GetRankProgress(x.XP);
-        return new
-        {
-            Rank = index + 1,
-            Alias = x.Alias,
-            Country = x.Country,
-            XP = x.XP,
-            XPToNextPlayer = index == 0 ? 0 : leaderboard[index - 1].XP - x.XP,
-            WH40kRank = progress.CurrentRank,
-            NextRank = progress.NextRank,
-            XPToNextRank = progress.XPToNextRank
-        };
-    })
-    .ToList();
 
-                dg1v1.DataSource = ranked;
-                dg1v1.Columns["Rank"].HeaderText = "Leaderboard Rank";
+                dg1v1.DataSource = withNextPlayer;
+
+                // Nice headers
                 dg1v1.Columns["XP"].HeaderText = "Total XP";
+                dg1v1.Columns["Rating"].HeaderText = "Rating";
+                dg1v1.Columns["Wins"].HeaderText = "Wins";
+                dg1v1.Columns["Losses"].HeaderText = "Losses";
+                dg1v1.Columns["APIRank"].HeaderText = "API Rank";
+                dg1v1.Columns["CurrentRank"].HeaderText = "DOW Rank";
+                dg1v1.Columns["NextRank"].HeaderText = "Next Rank";
+                dg1v1.Columns["XPToNextRank"].HeaderText = "XP to Next Rank";
                 dg1v1.Columns["XPToNextPlayer"].HeaderText = "XP to Next Player";
-                dg1v1.Columns["WH40kRank"].HeaderText = "DOW ST Rank";
-                dg1v1.Columns["XPToNextRank"].HeaderText = "XP to Next DOW ST Rank";
-                dg1v1.Columns["NextRank"].HeaderText = "Next DOW ST Rank";
             }
         }
+
         private async Task LoadLeaderboard2v2()
         {
-            string getLeaderboard = $"https://dow-api.reliclink.com/community/leaderboard/getleaderboard2?count=200&leaderboard_id=2&start=1&sortBy=1&title=dow1-de";
+            string url = "https://dow-api.reliclink.com/community/leaderboard/getleaderboard2?count=200&leaderboard_id=2&start=1&sortBy=1&title=dow1-de";
             using (HttpClient client = new HttpClient())
             {
-                string json = await client.GetStringAsync(getLeaderboard);
+                string json = await client.GetStringAsync(url);
 
-                // Deserialize into Root, not LeaderboardEntry
                 var data = JsonConvert.DeserializeObject<Root>(json);
 
+                // Build leaderboard with both API stats + WH40k custom rank system
                 var leaderboard = data.statGroups
                     .Where(g => g.members != null && g.members.Any())
-                    .Select(g => new
+                    .Select(g =>
                     {
-                        Alias = g.members.First().alias,
-                        Country = g.members.First().country,
-                        XP = g.members.First().xp
+                        var m = g.members.First();
+                        var stats = data.leaderboardStats.FirstOrDefault(s => s.statgroup_id == g.id);
+
+                        // Use your GetRankProgress method
+                        var progress = GetRankProgress(m.xp);
+
+                        return new
+                        {
+                            Alias = m.alias,
+                            Country = m.country.ToUpper(),
+                            XP = m.xp,
+
+                            // API Stats
+                            Rating = stats?.rating ?? 0,
+                            Wins = stats?.wins ?? 0,
+                            Losses = stats?.losses ?? 0,
+                            APIRank = stats?.rank ?? 0,
+
+                            // WH40k Rank System
+                            CurrentRank = progress.CurrentRank,
+                            NextRank = progress.NextRank,
+                            XPToNextRank = progress.XPToNextRank
+                        };
                     })
-                    .OrderByDescending(x => x.XP)
-                    .Select((x, index) => new LeaderboardEntry
+                    .OrderByDescending(x => x.Rating) // ✅ rank by Rating
+                    .ToList();
+
+                // Add XP-to-Next-Player after sorting
+                var withNextPlayer = leaderboard
+                    .Select((x, index) => new
                     {
-                        Rank = index + 1,
-                        Alias = x.Alias,
-                        Country = x.Country,
-                        XP = x.XP
+                        APIRank = x.APIRank,
+                        x.Alias,
+                        x.Country,
+                        x.Rating,
+                        x.Wins,
+                        x.Losses,
+                        x.XP,
+                        XPToNextPlayer = index == 0
+            ? 0
+            : Math.Max(0, leaderboard[index - 1].XP - x.XP),
+
+                        CurrentRank = x.CurrentRank,
+                        NextRank = x.NextRank,
+                        XPToNextRank = x.XPToNextRank
+
                     })
                     .ToList();
-                var ranked = leaderboard
-    .Select((x, index) =>
-    {
-        var progress = GetRankProgress(x.XP);
-        return new
-        {
-            Rank = index + 1,
-            Alias = x.Alias,
-            Country = x.Country,
-            XP = x.XP,
-            XPToNextPlayer = index == 0 ? 0 : leaderboard[index - 1].XP - x.XP,
-            WH40kRank = progress.CurrentRank,
-            NextRank = progress.NextRank,
-            XPToNextRank = progress.XPToNextRank
-        };
-    })
-    .ToList();
 
-                dg2v2.DataSource = ranked;
-                dg2v2.Columns["Rank"].HeaderText = "Leaderboard Rank";
+                dg2v2.DataSource = withNextPlayer;
+
+                // Nice headers
                 dg2v2.Columns["XP"].HeaderText = "Total XP";
+                dg2v2.Columns["Rating"].HeaderText = "Rating";
+                dg2v2.Columns["Wins"].HeaderText = "Wins";
+                dg2v2.Columns["Losses"].HeaderText = "Losses";
+                dg2v2.Columns["APIRank"].HeaderText = "API Rank";
+                dg2v2.Columns["CurrentRank"].HeaderText = "DOW Rank";
+                dg2v2.Columns["NextRank"].HeaderText = "Next Rank";
+                dg2v2.Columns["XPToNextRank"].HeaderText = "XP to Next Rank";
                 dg2v2.Columns["XPToNextPlayer"].HeaderText = "XP to Next Player";
-                dg2v2.Columns["WH40kRank"].HeaderText = "DOW ST Rank";
-                dg2v2.Columns["XPToNextRank"].HeaderText = "XP to Next DOW ST Rank";
-                dg2v2.Columns["NextRank"].HeaderText = "Next DOW ST Rank";
             }
         }
         private async Task LoadLeaderboard3v3()
         {
-            string getLeaderboard = $"https://dow-api.reliclink.com/community/leaderboard/getleaderboard2?count=200&leaderboard_id=1&start=1&sortBy=1&title=dow1-de";
+            string url = $"https://dow-api.reliclink.com/community/leaderboard/getleaderboard2?count=200&leaderboard_id=3&start=1&sortBy=1&title=dow1-de";
             using (HttpClient client = new HttpClient())
             {
-                string json = await client.GetStringAsync(getLeaderboard);
+                string json = await client.GetStringAsync(url);
 
-                // Deserialize into Root, not LeaderboardEntry
                 var data = JsonConvert.DeserializeObject<Root>(json);
 
+                // Build leaderboard with both API stats + WH40k custom rank system
                 var leaderboard = data.statGroups
                     .Where(g => g.members != null && g.members.Any())
-                    .Select(g => new
+                    .Select(g =>
                     {
-                        Alias = g.members.First().alias,
-                        Country = g.members.First().country,
-                        XP = g.members.First().xp
+                        var m = g.members.First();
+                        var stats = data.leaderboardStats.FirstOrDefault(s => s.statgroup_id == g.id);
+
+                        // Use your GetRankProgress method
+                        var progress = GetRankProgress(m.xp);
+
+                        return new
+                        {
+                            Alias = m.alias,
+                            Country = m.country.ToUpper(),
+                            XP = m.xp,
+
+                            // API Stats
+                            Rating = stats?.rating ?? 0,
+                            Wins = stats?.wins ?? 0,
+                            Losses = stats?.losses ?? 0,
+                            APIRank = stats?.rank ?? 0,
+
+                            // WH40k Rank System
+                            CurrentRank = progress.CurrentRank,
+                            NextRank = progress.NextRank,
+                            XPToNextRank = progress.XPToNextRank
+                        };
                     })
-                    .OrderByDescending(x => x.XP)
-                    .Select((x, index) => new LeaderboardEntry
+                    .OrderByDescending(x => x.Rating) // ✅ rank by Rating
+                    .ToList();
+
+                // Add XP-to-Next-Player after sorting
+                var withNextPlayer = leaderboard
+                    .Select((x, index) => new
                     {
-                        Rank = index + 1,
-                        Alias = x.Alias,
-                        Country = x.Country,
-                        XP = x.XP
+                        APIRank = x.APIRank,
+                        x.Alias,
+                        x.Country,
+                        x.Rating,
+                        x.Wins,
+                        x.Losses,
+                        x.XP,
+                        XPToNextPlayer = index == 0
+            ? 0
+            : Math.Max(0, leaderboard[index - 1].XP - x.XP),
+
+                        CurrentRank = x.CurrentRank,
+                        NextRank = x.NextRank,
+                        XPToNextRank = x.XPToNextRank
+
                     })
                     .ToList();
-                var ranked = leaderboard
-    .Select((x, index) =>
-    {
-        var progress = GetRankProgress(x.XP);
-        return new
-        {
-            Rank = index + 1,
-            Alias = x.Alias,
-            Country = x.Country,
-            XP = x.XP,
-            XPToNextPlayer = index == 0 ? 0 : leaderboard[index - 1].XP - x.XP,
-            WH40kRank = progress.CurrentRank,
-            NextRank = progress.NextRank,
-            XPToNextRank = progress.XPToNextRank
-        };
-    })
-    .ToList();
 
-                dg3v3.DataSource = ranked;
-                dg3v3.Columns["Rank"].HeaderText = "Leaderboard Rank";
+                dg3v3.DataSource = withNextPlayer;
+
                 dg3v3.Columns["XP"].HeaderText = "Total XP";
+                dg3v3.Columns["Rating"].HeaderText = "Rating";
+                dg3v3.Columns["Wins"].HeaderText = "Wins";
+                dg3v3.Columns["Losses"].HeaderText = "Losses";
+                dg3v3.Columns["APIRank"].HeaderText = "API Rank";
+                dg3v3.Columns["CurrentRank"].HeaderText = "DOW Rank";
+                dg3v3.Columns["NextRank"].HeaderText = "Next Rank";
+                dg3v3.Columns["XPToNextRank"].HeaderText = "XP to Next Rank";
                 dg3v3.Columns["XPToNextPlayer"].HeaderText = "XP to Next Player";
-                dg3v3.Columns["WH40kRank"].HeaderText = "DOW ST Rank";
-                dg3v3.Columns["XPToNextRank"].HeaderText = "XP to Next DOW ST Rank";
-                dg3v3.Columns["NextRank"].HeaderText = "Next DOW ST Rank";
+            }
+        }
+        private async Task LoadLeaderboard4v4()
+        {
+            string url = $"https://dow-api.reliclink.com/community/leaderboard/getleaderboard2?count=200&leaderboard_id=4&start=1&sortBy=1&title=dow1-de";
+            using (HttpClient client = new HttpClient())
+            {
+                string json = await client.GetStringAsync(url);
+
+                var data = JsonConvert.DeserializeObject<Root>(json);
+
+                // Build leaderboard with both API stats + WH40k custom rank system
+                var leaderboard = data.statGroups
+                    .Where(g => g.members != null && g.members.Any())
+                    .Select(g =>
+                    {
+                        var m = g.members.First();
+                        var stats = data.leaderboardStats.FirstOrDefault(s => s.statgroup_id == g.id);
+
+                        // Use your GetRankProgress method
+                        var progress = GetRankProgress(m.xp);
+
+                        return new
+                        {
+                            Alias = m.alias,
+                            Country = m.country.ToUpper(),
+                            XP = m.xp,
+
+                            // API Stats
+                            Rating = stats?.rating ?? 0,
+                            Wins = stats?.wins ?? 0,
+                            Losses = stats?.losses ?? 0,
+                            APIRank = stats?.rank ?? 0,
+
+                            // WH40k Rank System
+                            CurrentRank = progress.CurrentRank,
+                            NextRank = progress.NextRank,
+                            XPToNextRank = progress.XPToNextRank
+                        };
+                    })
+                    .OrderByDescending(x => x.Rating) // ✅ rank by Rating
+                    .ToList();
+
+                // Add XP-to-Next-Player after sorting
+                var withNextPlayer = leaderboard
+                    .Select((x, index) => new
+                    {
+                        APIRank = x.APIRank,
+                        x.Alias,
+                        x.Country,
+                        x.Rating,
+                        x.Wins,
+                        x.Losses,
+                        x.XP,
+                        XPToNextPlayer = index == 0
+            ? 0
+            : Math.Max(0, leaderboard[index - 1].XP - x.XP),
+
+                        CurrentRank = x.CurrentRank,
+                        NextRank = x.NextRank,
+                        XPToNextRank = x.XPToNextRank
+
+                    })
+                    .ToList();
+
+                dg4v4.DataSource = withNextPlayer;
+
+                dg4v4.Columns["XP"].HeaderText = "Total XP";
+                dg4v4.Columns["Rating"].HeaderText = "Rating";
+                dg4v4.Columns["Wins"].HeaderText = "Wins";
+                dg4v4.Columns["Losses"].HeaderText = "Losses";
+                dg4v4.Columns["APIRank"].HeaderText = "API Rank";
+                dg4v4.Columns["CurrentRank"].HeaderText = "DOW Rank";
+                dg4v4.Columns["NextRank"].HeaderText = "Next Rank";
+                dg4v4.Columns["XPToNextRank"].HeaderText = "XP to Next Rank";
+                dg4v4.Columns["XPToNextPlayer"].HeaderText = "XP to Next Player";
+            }
+        }
+        private async Task LoadLeaderboard5v5()
+        {
+            string url = $"https://dow-api.reliclink.com/community/leaderboard/getleaderboard2?count=200&leaderboard_id=5&start=1&sortBy=1&title=dow1-de";
+            using (HttpClient client = new HttpClient())
+            {
+                string json = await client.GetStringAsync(url);
+
+                var data = JsonConvert.DeserializeObject<Root>(json);
+
+                // Build leaderboard with both API stats + WH40k custom rank system
+                var leaderboard = data.statGroups
+                    .Where(g => g.members != null && g.members.Any())
+                    .Select(g =>
+                    {
+                        var m = g.members.First();
+                        var stats = data.leaderboardStats.FirstOrDefault(s => s.statgroup_id == g.id);
+
+                        // Use your GetRankProgress method
+                        var progress = GetRankProgress(m.xp);
+
+                        return new
+                        {
+                            Alias = m.alias,
+                            Country = m.country.ToUpper(),
+                            XP = m.xp,
+
+                            // API Stats
+                            Rating = stats?.rating ?? 0,
+                            Wins = stats?.wins ?? 0,
+                            Losses = stats?.losses ?? 0,
+                            APIRank = stats?.rank ?? 0,
+
+                            // WH40k Rank System
+                            CurrentRank = progress.CurrentRank,
+                            NextRank = progress.NextRank,
+                            XPToNextRank = progress.XPToNextRank
+                        };
+                    })
+                    .OrderByDescending(x => x.Rating) // ✅ rank by Rating
+                    .ToList();
+
+                // Add XP-to-Next-Player after sorting
+                var withNextPlayer = leaderboard
+                     .Select((x, index) => new
+                     {
+                         APIRank = x.APIRank,
+                         x.Alias,
+                         x.Country,
+                         x.Rating,
+                         x.Wins,
+                         x.Losses,
+                         x.XP,
+                         XPToNextPlayer = index == 0
+             ? 0
+             : Math.Max(0, leaderboard[index - 1].XP - x.XP),
+
+                         CurrentRank = x.CurrentRank,
+                         NextRank = x.NextRank,
+                         XPToNextRank = x.XPToNextRank
+
+                     })
+                     .ToList();
+
+                dg5v5.DataSource = withNextPlayer;
+
+                dg5v5.Columns["XP"].HeaderText = "Total XP";
+                dg5v5.Columns["Rating"].HeaderText = "Rating";
+                dg5v5.Columns["Wins"].HeaderText = "Wins";
+                dg5v5.Columns["Losses"].HeaderText = "Losses";
+                dg5v5.Columns["APIRank"].HeaderText = "API Rank";
+                dg5v5.Columns["CurrentRank"].HeaderText = "DOW Rank";
+                dg5v5.Columns["NextRank"].HeaderText = "Next Rank";
+                dg5v5.Columns["XPToNextRank"].HeaderText = "XP to Next Rank";
+                dg5v5.Columns["XPToNextPlayer"].HeaderText = "XP to Next Player";
+            }
+        }
+        private async Task LoadLeaderboard6v6()
+        {
+            string url = $"https://dow-api.reliclink.com/community/leaderboard/getleaderboard2?count=200&leaderboard_id=6&start=1&sortBy=1&title=dow1-de";
+            using (HttpClient client = new HttpClient())
+            {
+                string json = await client.GetStringAsync(url);
+
+                var data = JsonConvert.DeserializeObject<Root>(json);
+
+                // Build leaderboard with both API stats + WH40k custom rank system
+                var leaderboard = data.statGroups
+                    .Where(g => g.members != null && g.members.Any())
+                    .Select(g =>
+                    {
+                        var m = g.members.First();
+                        var stats = data.leaderboardStats.FirstOrDefault(s => s.statgroup_id == g.id);
+
+                        // Use your GetRankProgress method
+                        var progress = GetRankProgress(m.xp);
+
+                        return new
+                        {
+                            Alias = m.alias,
+                            Country = m.country.ToUpper(),
+                            XP = m.xp,
+
+                            // API Stats
+                            Rating = stats?.rating ?? 0,
+                            Wins = stats?.wins ?? 0,
+                            Losses = stats?.losses ?? 0,
+                            APIRank = stats?.rank ?? 0,
+
+                            // WH40k Rank System
+                            CurrentRank = progress.CurrentRank,
+                            NextRank = progress.NextRank,
+                            XPToNextRank = progress.XPToNextRank
+                        };
+                    })
+                    .OrderByDescending(x => x.Rating) // ✅ rank by Rating
+                    .ToList();
+
+                // Add XP-to-Next-Player after sorting
+                var withNextPlayer = leaderboard
+                    .Select((x, index) => new
+                    {
+                        APIRank = x.APIRank,
+                        x.Alias,
+                        x.Country,
+                        x.Rating,
+                        x.Wins,
+                        x.Losses,
+                        x.XP,
+                        XPToNextPlayer = index == 0
+            ? 0
+            : Math.Max(0, leaderboard[index - 1].XP - x.XP),
+
+                        CurrentRank = x.CurrentRank,
+                        NextRank = x.NextRank,
+                        XPToNextRank = x.XPToNextRank
+ 
+                    })
+                    .ToList();
+
+                dg6v6.DataSource = withNextPlayer;
+
+                dg6v6.Columns["XP"].HeaderText = "Total XP";
+                dg6v6.Columns["Rating"].HeaderText = "Rating";
+                dg6v6.Columns["Wins"].HeaderText = "Wins";
+                dg6v6.Columns["Losses"].HeaderText = "Losses";
+                dg6v6.Columns["APIRank"].HeaderText = "API Rank";
+                dg6v6.Columns["CurrentRank"].HeaderText = "DOW Rank";
+                dg6v6.Columns["NextRank"].HeaderText = "Next Rank";
+                dg6v6.Columns["XPToNextRank"].HeaderText = "XP to Next Rank";
+                dg6v6.Columns["XPToNextPlayer"].HeaderText = "XP to Next Player";
+            }
+        }
+        private async Task LoadLeaderboard7v7()
+        {
+            string url = $"https://dow-api.reliclink.com/community/leaderboard/getleaderboard2?count=200&leaderboard_id=7&start=1&sortBy=1&title=dow1-de";
+            using (HttpClient client = new HttpClient())
+            {
+                string json = await client.GetStringAsync(url);
+
+                var data = JsonConvert.DeserializeObject<Root>(json);
+
+                // Build leaderboard with both API stats + WH40k custom rank system
+                var leaderboard = data.statGroups
+                    .Where(g => g.members != null && g.members.Any())
+                    .Select(g =>
+                    {
+                        var m = g.members.First();
+                        var stats = data.leaderboardStats.FirstOrDefault(s => s.statgroup_id == g.id);
+
+                        // Use your GetRankProgress method
+                        var progress = GetRankProgress(m.xp);
+
+                        return new
+                        {
+                            Alias = m.alias,
+                            Country = m.country.ToUpper(),
+                            XP = m.xp,
+
+                            // API Stats
+                            Rating = stats?.rating ?? 0,
+                            Wins = stats?.wins ?? 0,
+                            Losses = stats?.losses ?? 0,
+                            APIRank = stats?.rank ?? 0,
+
+                            // WH40k Rank System
+                            CurrentRank = progress.CurrentRank,
+                            NextRank = progress.NextRank,
+                            XPToNextRank = progress.XPToNextRank
+                        };
+                    })
+                    .OrderByDescending(x => x.Rating) // ✅ rank by Rating
+                    .ToList();
+
+                // Add XP-to-Next-Player after sorting
+                var withNextPlayer = leaderboard
+                     .Select((x, index) => new
+                     {
+                         APIRank = x.APIRank,
+                         x.Alias,
+                         x.Country,
+                         x.Rating,
+                         x.Wins,
+                         x.Losses,
+                         x.XP,
+                         XPToNextPlayer = index == 0
+             ? 0
+             : Math.Max(0, leaderboard[index - 1].XP - x.XP),
+
+                         CurrentRank = x.CurrentRank,
+                         NextRank = x.NextRank,
+                         XPToNextRank = x.XPToNextRank
+
+                     })
+                     .ToList();
+
+                dg7v7.DataSource = withNextPlayer;
+
+                dg7v7.Columns["XP"].HeaderText = "Total XP";
+                dg7v7.Columns["Rating"].HeaderText = "Rating";
+                dg7v7.Columns["Wins"].HeaderText = "Wins";
+                dg7v7.Columns["Losses"].HeaderText = "Losses";
+                dg7v7.Columns["APIRank"].HeaderText = "API Rank";
+                dg7v7.Columns["CurrentRank"].HeaderText = "DOW Rank";
+                dg7v7.Columns["NextRank"].HeaderText = "Next Rank";
+                dg7v7.Columns["XPToNextRank"].HeaderText = "XP to Next Rank";
+                dg7v7.Columns["XPToNextPlayer"].HeaderText = "XP to Next Player";
+            }
+        }
+        private async Task LoadLeaderboard8v8()
+        {
+            string url = $"https://dow-api.reliclink.com/community/leaderboard/getleaderboard2?count=200&leaderboard_id=8&start=1&sortBy=1&title=dow1-de";
+            using (HttpClient client = new HttpClient())
+            {
+                string json = await client.GetStringAsync(url);
+
+                var data = JsonConvert.DeserializeObject<Root>(json);
+
+                // Build leaderboard with both API stats + WH40k custom rank system
+                var leaderboard = data.statGroups
+                    .Where(g => g.members != null && g.members.Any())
+                    .Select(g =>
+                    {
+                        var m = g.members.First();
+                        var stats = data.leaderboardStats.FirstOrDefault(s => s.statgroup_id == g.id);
+
+                        // Use your GetRankProgress method
+                        var progress = GetRankProgress(m.xp);
+
+                        return new
+                        {
+                            Alias = m.alias,
+                            Country = m.country.ToUpper(),
+                            XP = m.xp,
+
+                            // API Stats
+                            Rating = stats?.rating ?? 0,
+                            Wins = stats?.wins ?? 0,
+                            Losses = stats?.losses ?? 0,
+                            APIRank = stats?.rank ?? 0,
+
+                            // WH40k Rank System
+                            CurrentRank = progress.CurrentRank,
+                            NextRank = progress.NextRank,
+                            XPToNextRank = progress.XPToNextRank
+                        };
+                    })
+                    .OrderByDescending(x => x.Rating) // ✅ rank by Rating
+                    .ToList();
+
+                // Add XP-to-Next-Player after sorting
+                var withNextPlayer = leaderboard
+                     .Select((x, index) => new
+                     {
+                         APIRank = x.APIRank,
+                         x.Alias,
+                         x.Country,
+                         x.Rating,
+                         x.Wins,
+                         x.Losses,
+                         x.XP,
+                         XPToNextPlayer = index == 0
+             ? 0
+             : Math.Max(0, leaderboard[index - 1].XP - x.XP),
+
+                         CurrentRank = x.CurrentRank,
+                         NextRank = x.NextRank,
+                         XPToNextRank = x.XPToNextRank
+
+                     })
+                     .ToList();
+
+                dg8v8.DataSource = withNextPlayer;
+
+                dg8v8.Columns["XP"].HeaderText = "Total XP";
+                dg8v8.Columns["Rating"].HeaderText = "Rating";
+                dg8v8.Columns["Wins"].HeaderText = "Wins";
+                dg8v8.Columns["Losses"].HeaderText = "Losses";
+                dg8v8.Columns["APIRank"].HeaderText = "API Rank";
+                dg8v8.Columns["CurrentRank"].HeaderText = "DOW Rank";
+                dg8v8.Columns["NextRank"].HeaderText = "Next Rank";
+                dg8v8.Columns["XPToNextRank"].HeaderText = "XP to Next Rank";
+                dg8v8.Columns["XPToNextPlayer"].HeaderText = "XP to Next Player";
+            }
+        }
+        private async Task LoadLeaderboard9v9()
+        {
+            string url = $"https://dow-api.reliclink.com/community/leaderboard/getleaderboard2?count=200&leaderboard_id=9&start=1&sortBy=1&title=dow1-de";
+            using (HttpClient client = new HttpClient())
+            {
+                string json = await client.GetStringAsync(url);
+
+                var data = JsonConvert.DeserializeObject<Root>(json);
+
+                // Build leaderboard with both API stats + WH40k custom rank system
+                var leaderboard = data.statGroups
+                    .Where(g => g.members != null && g.members.Any())
+                    .Select(g =>
+                    {
+                        var m = g.members.First();
+                        var stats = data.leaderboardStats.FirstOrDefault(s => s.statgroup_id == g.id);
+
+                        // Use your GetRankProgress method
+                        var progress = GetRankProgress(m.xp);
+
+                        return new
+                        {
+                            Alias = m.alias,
+                            Country = m.country.ToUpper(),
+                            XP = m.xp,
+
+                            // API Stats
+                            Rating = stats?.rating ?? 0,
+                            Wins = stats?.wins ?? 0,
+                            Losses = stats?.losses ?? 0,
+                            APIRank = stats?.rank ?? 0,
+
+                            // WH40k Rank System
+                            CurrentRank = progress.CurrentRank,
+                            NextRank = progress.NextRank,
+                            XPToNextRank = progress.XPToNextRank
+                        };
+                    })
+                    .OrderByDescending(x => x.Rating) // ✅ rank by Rating
+                    .ToList();
+
+                // Add XP-to-Next-Player after sorting
+                var withNextPlayer = leaderboard
+                    .Select((x, index) => new
+                    {
+                        APIRank = x.APIRank,
+                        x.Alias,
+                        x.Country,
+                        x.Rating,
+                        x.Wins,
+                        x.Losses,
+                        x.XP,
+                        XPToNextPlayer = index == 0
+            ? 0
+            : Math.Max(0, leaderboard[index - 1].XP - x.XP),
+
+                        CurrentRank = x.CurrentRank,
+                        NextRank = x.NextRank,
+                        XPToNextRank = x.XPToNextRank
+
+                    })
+                    .ToList();
+
+                dg9v9.DataSource = withNextPlayer;
+
+                dg9v9.Columns["XP"].HeaderText = "Total XP";
+                dg9v9.Columns["Rating"].HeaderText = "Rating";
+                dg9v9.Columns["Wins"].HeaderText = "Wins";
+                dg9v9.Columns["Losses"].HeaderText = "Losses";
+                dg9v9.Columns["APIRank"].HeaderText = "API Rank";
+                dg9v9.Columns["CurrentRank"].HeaderText = "DOW Rank";
+                dg9v9.Columns["NextRank"].HeaderText = "Next Rank";
+                dg9v9.Columns["XPToNextRank"].HeaderText = "XP to Next Rank";
+                dg9v9.Columns["XPToNextPlayer"].HeaderText = "XP to Next Player";
+            }
+        }
+        private async Task LoadLeaderboard10v10()
+        {
+            string url = $"https://dow-api.reliclink.com/community/leaderboard/getleaderboard2?count=200&leaderboard_id=10&start=1&sortBy=1&title=dow1-de";
+            using (HttpClient client = new HttpClient())
+            {
+                string json = await client.GetStringAsync(url);
+
+                var data = JsonConvert.DeserializeObject<Root>(json);
+
+                // Build leaderboard with both API stats + WH40k custom rank system
+                var leaderboard = data.statGroups
+                    .Where(g => g.members != null && g.members.Any())
+                    .Select(g =>
+                    {
+                        var m = g.members.First();
+                        var stats = data.leaderboardStats.FirstOrDefault(s => s.statgroup_id == g.id);
+
+                        // Use your GetRankProgress method
+                        var progress = GetRankProgress(m.xp);
+
+                        return new
+                        {
+                            Alias = m.alias,
+                            Country = m.country.ToUpper(),
+                            XP = m.xp,
+
+                            // API Stats
+                            Rating = stats?.rating ?? 0,
+                            Wins = stats?.wins ?? 0,
+                            Losses = stats?.losses ?? 0,
+                            APIRank = stats?.rank ?? 0,
+
+                            // WH40k Rank System
+                            CurrentRank = progress.CurrentRank,
+                            NextRank = progress.NextRank,
+                            XPToNextRank = progress.XPToNextRank
+                        };
+                    })
+                    .OrderByDescending(x => x.Rating) // ✅ rank by Rating
+                    .ToList();
+
+                // Add XP-to-Next-Player after sorting
+                var withNextPlayer = leaderboard
+                    .Select((x, index) => new
+                    {
+                        APIRank = x.APIRank,
+                        x.Alias,
+                        x.Country,
+                        x.Rating,
+                        x.Wins,
+                        x.Losses,
+                        x.XP,
+                        XPToNextPlayer = index == 0
+            ? 0
+            : Math.Max(0, leaderboard[index - 1].XP - x.XP),
+
+                        CurrentRank = x.CurrentRank,
+                        NextRank = x.NextRank,
+                        XPToNextRank = x.XPToNextRank
+
+                    })
+                    .ToList();
+
+                chaos2v2.DataSource = withNextPlayer;
+
+                chaos2v2.Columns["XP"].HeaderText = "Total XP";
+                chaos2v2.Columns["Rating"].HeaderText = "Rating";
+                chaos2v2.Columns["Wins"].HeaderText = "Wins";
+                chaos2v2.Columns["Losses"].HeaderText = "Losses";
+                chaos2v2.Columns["APIRank"].HeaderText = "API Rank";
+                chaos2v2.Columns["CurrentRank"].HeaderText = "DOW Rank";
+                chaos2v2.Columns["NextRank"].HeaderText = "Next Rank";
+                chaos2v2.Columns["XPToNextRank"].HeaderText = "XP to Next Rank";
+                chaos2v2.Columns["XPToNextPlayer"].HeaderText = "XP to Next Player";
+            }
+        }
+        private async Task LoadLeaderboard11v11()
+        {
+            string url = $"https://dow-api.reliclink.com/community/leaderboard/getleaderboard2?count=200&leaderboard_id=11&start=1&sortBy=1&title=dow1-de";
+            using (HttpClient client = new HttpClient())
+            {
+                string json = await client.GetStringAsync(url);
+
+                var data = JsonConvert.DeserializeObject<Root>(json);
+
+                // Build leaderboard with both API stats + WH40k custom rank system
+                var leaderboard = data.statGroups
+                    .Where(g => g.members != null && g.members.Any())
+                    .Select(g =>
+                    {
+                        var m = g.members.First();
+                        var stats = data.leaderboardStats.FirstOrDefault(s => s.statgroup_id == g.id);
+
+                        // Use your GetRankProgress method
+                        var progress = GetRankProgress(m.xp);
+
+                        return new
+                        {
+                            Alias = m.alias,
+                            Country = m.country.ToUpper(),
+                            XP = m.xp,
+
+                            // API Stats
+                            Rating = stats?.rating ?? 0,
+                            Wins = stats?.wins ?? 0,
+                            Losses = stats?.losses ?? 0,
+                            APIRank = stats?.rank ?? 0,
+
+                            // WH40k Rank System
+                            CurrentRank = progress.CurrentRank,
+                            NextRank = progress.NextRank,
+                            XPToNextRank = progress.XPToNextRank
+                        };
+                    })
+                    .OrderByDescending(x => x.Rating) // ✅ rank by Rating
+                    .ToList();
+
+                // Add XP-to-Next-Player after sorting
+                var withNextPlayer = leaderboard
+                    .Select((x, index) => new
+                    {
+                        APIRank = x.APIRank,
+                        x.Alias,
+                        x.Country,
+                        x.Rating,
+                        x.Wins,
+                        x.Losses,
+                        x.XP,
+                        XPToNextPlayer = index == 0
+            ? 0
+            : Math.Max(0, leaderboard[index - 1].XP - x.XP),
+
+                        CurrentRank = x.CurrentRank,
+                        NextRank = x.NextRank,
+                        XPToNextRank = x.XPToNextRank
+
+                    })
+                    .ToList();
+
+                darkeldar2v2.DataSource = withNextPlayer;
+
+                darkeldar2v2.Columns["XP"].HeaderText = "Total XP";
+                darkeldar2v2.Columns["Rating"].HeaderText = "Rating";
+                darkeldar2v2.Columns["Wins"].HeaderText = "Wins";
+                darkeldar2v2.Columns["Losses"].HeaderText = "Losses";
+                darkeldar2v2.Columns["APIRank"].HeaderText = "API Rank";
+                darkeldar2v2.Columns["CurrentRank"].HeaderText = "DOW Rank";
+                darkeldar2v2.Columns["NextRank"].HeaderText = "Next Rank";
+                darkeldar2v2.Columns["XPToNextRank"].HeaderText = "XP to Next Rank";
+                darkeldar2v2.Columns["XPToNextPlayer"].HeaderText = "XP to Next Player";
+            }
+        }
+        private async Task LoadLeaderboard12v12()
+        {
+            string url = $"https://dow-api.reliclink.com/community/leaderboard/getleaderboard2?count=200&leaderboard_id=12&start=1&sortBy=1&title=dow1-de";
+            using (HttpClient client = new HttpClient())
+            {
+                string json = await client.GetStringAsync(url);
+
+                var data = JsonConvert.DeserializeObject<Root>(json);
+
+                // Build leaderboard with both API stats + WH40k custom rank system
+                var leaderboard = data.statGroups
+                    .Where(g => g.members != null && g.members.Any())
+                    .Select(g =>
+                    {
+                        var m = g.members.First();
+                        var stats = data.leaderboardStats.FirstOrDefault(s => s.statgroup_id == g.id);
+
+                        // Use your GetRankProgress method
+                        var progress = GetRankProgress(m.xp);
+
+                        return new
+                        {
+                            Alias = m.alias,
+                            Country = m.country.ToUpper(),
+                            XP = m.xp,
+
+                            // API Stats
+                            Rating = stats?.rating ?? 0,
+                            Wins = stats?.wins ?? 0,
+                            Losses = stats?.losses ?? 0,
+                            APIRank = stats?.rank ?? 0,
+
+                            // WH40k Rank System
+                            CurrentRank = progress.CurrentRank,
+                            NextRank = progress.NextRank,
+                            XPToNextRank = progress.XPToNextRank
+                        };
+                    })
+                    .OrderByDescending(x => x.Rating) // ✅ rank by Rating
+                    .ToList();
+
+                // Add XP-to-Next-Player after sorting
+                var withNextPlayer = leaderboard
+                    .Select((x, index) => new
+                    {
+                        APIRank = x.APIRank,
+                        x.Alias,
+                        x.Country,
+                        x.Rating,
+                        x.Wins,
+                        x.Losses,
+                        x.XP,
+                        XPToNextPlayer = index == 0
+            ? 0
+            : Math.Max(0, leaderboard[index - 1].XP - x.XP),
+
+                        CurrentRank = x.CurrentRank,
+                        NextRank = x.NextRank,
+                        XPToNextRank = x.XPToNextRank
+
+                    })
+                    .ToList();
+
+                eldar2v2.DataSource = withNextPlayer;
+
+                eldar2v2.Columns["XP"].HeaderText = "Total XP";
+                eldar2v2.Columns["Rating"].HeaderText = "Rating";
+                eldar2v2.Columns["Wins"].HeaderText = "Wins";
+                eldar2v2.Columns["Losses"].HeaderText = "Losses";
+                eldar2v2.Columns["APIRank"].HeaderText = "API Rank";
+                eldar2v2.Columns["CurrentRank"].HeaderText = "DOW Rank";
+                eldar2v2.Columns["NextRank"].HeaderText = "Next Rank";
+                eldar2v2.Columns["XPToNextRank"].HeaderText = "XP to Next Rank";
+                eldar2v2.Columns["XPToNextPlayer"].HeaderText = "XP to Next Player";
+            }
+        }
+        private async Task LoadLeaderboard13v13()
+        {
+            string url = $"https://dow-api.reliclink.com/community/leaderboard/getleaderboard2?count=200&leaderboard_id=13&start=1&sortBy=1&title=dow1-de";
+            using (HttpClient client = new HttpClient())
+            {
+                string json = await client.GetStringAsync(url);
+
+                var data = JsonConvert.DeserializeObject<Root>(json);
+
+                // Build leaderboard with both API stats + WH40k custom rank system
+                var leaderboard = data.statGroups
+                    .Where(g => g.members != null && g.members.Any())
+                    .Select(g =>
+                    {
+                        var m = g.members.First();
+                        var stats = data.leaderboardStats.FirstOrDefault(s => s.statgroup_id == g.id);
+
+                        // Use your GetRankProgress method
+                        var progress = GetRankProgress(m.xp);
+
+                        return new
+                        {
+                            Alias = m.alias,
+                            Country = m.country.ToUpper(),
+                            XP = m.xp,
+
+                            // API Stats
+                            Rating = stats?.rating ?? 0,
+                            Wins = stats?.wins ?? 0,
+                            Losses = stats?.losses ?? 0,
+                            APIRank = stats?.rank ?? 0,
+
+                            // WH40k Rank System
+                            CurrentRank = progress.CurrentRank,
+                            NextRank = progress.NextRank,
+                            XPToNextRank = progress.XPToNextRank
+                        };
+                    })
+                    .OrderByDescending(x => x.Rating) // ✅ rank by Rating
+                    .ToList();
+
+                // Add XP-to-Next-Player after sorting
+                var withNextPlayer = leaderboard
+                    .Select((x, index) => new
+                    {
+                        APIRank = x.APIRank,
+                        x.Alias,
+                        x.Country,
+                        x.Rating,
+                        x.Wins,
+                        x.Losses,
+                        x.XP,
+                        XPToNextPlayer = index == 0
+            ? 0
+            : Math.Max(0, leaderboard[index - 1].XP - x.XP),
+
+                        CurrentRank = x.CurrentRank,
+                        NextRank = x.NextRank,
+                        XPToNextRank = x.XPToNextRank
+
+                    })
+                    .ToList();
+
+                imperialguard2v2.DataSource = withNextPlayer;
+
+                imperialguard2v2.Columns["XP"].HeaderText = "Total XP";
+                imperialguard2v2.Columns["Rating"].HeaderText = "Rating";
+                imperialguard2v2.Columns["Wins"].HeaderText = "Wins";
+                imperialguard2v2.Columns["Losses"].HeaderText = "Losses";
+                imperialguard2v2.Columns["APIRank"].HeaderText = "API Rank";
+                imperialguard2v2.Columns["CurrentRank"].HeaderText = "DOW Rank";
+                imperialguard2v2.Columns["NextRank"].HeaderText = "Next Rank";
+                imperialguard2v2.Columns["XPToNextRank"].HeaderText = "XP to Next Rank";
+                imperialguard2v2.Columns["XPToNextPlayer"].HeaderText = "XP to Next Player";
+            }
+        }
+        private async Task LoadLeaderboard14v14()
+        {
+            string url = $"https://dow-api.reliclink.com/community/leaderboard/getleaderboard2?count=200&leaderboard_id=14&start=1&sortBy=1&title=dow1-de";
+            using (HttpClient client = new HttpClient())
+            {
+                string json = await client.GetStringAsync(url);
+
+                var data = JsonConvert.DeserializeObject<Root>(json);
+
+                // Build leaderboard with both API stats + WH40k custom rank system
+                var leaderboard = data.statGroups
+                    .Where(g => g.members != null && g.members.Any())
+                    .Select(g =>
+                    {
+                        var m = g.members.First();
+                        var stats = data.leaderboardStats.FirstOrDefault(s => s.statgroup_id == g.id);
+
+                        // Use your GetRankProgress method
+                        var progress = GetRankProgress(m.xp);
+
+                        return new
+                        {
+                            Alias = m.alias,
+                            Country = m.country.ToUpper(),
+                            XP = m.xp,
+
+                            // API Stats
+                            Rating = stats?.rating ?? 0,
+                            Wins = stats?.wins ?? 0,
+                            Losses = stats?.losses ?? 0,
+                            APIRank = stats?.rank ?? 0,
+
+                            // WH40k Rank System
+                            CurrentRank = progress.CurrentRank,
+                            NextRank = progress.NextRank,
+                            XPToNextRank = progress.XPToNextRank
+                        };
+                    })
+                    .OrderByDescending(x => x.Rating) // ✅ rank by Rating
+                    .ToList();
+
+                // Add XP-to-Next-Player after sorting
+                var withNextPlayer = leaderboard
+                    .Select((x, index) => new
+                    {
+                        APIRank = x.APIRank,
+                        x.Alias,
+                        x.Country,
+                        x.Rating,
+                        x.Wins,
+                        x.Losses,
+                        x.XP,
+                        XPToNextPlayer = index == 0
+            ? 0
+            : Math.Max(0, leaderboard[index - 1].XP - x.XP),
+
+                        CurrentRank = x.CurrentRank,
+                        NextRank = x.NextRank,
+                        XPToNextRank = x.XPToNextRank
+
+                    })
+                    .ToList();
+
+                necrons2v2.DataSource = withNextPlayer;
+
+                necrons2v2.Columns["XP"].HeaderText = "Total XP";
+                necrons2v2.Columns["Rating"].HeaderText = "Rating";
+                necrons2v2.Columns["Wins"].HeaderText = "Wins";
+                necrons2v2.Columns["Losses"].HeaderText = "Losses";
+                necrons2v2.Columns["APIRank"].HeaderText = "API Rank";
+                necrons2v2.Columns["CurrentRank"].HeaderText = "DOW Rank";
+                necrons2v2.Columns["NextRank"].HeaderText = "Next Rank";
+                necrons2v2.Columns["XPToNextRank"].HeaderText = "XP to Next Rank";
+                necrons2v2.Columns["XPToNextPlayer"].HeaderText = "XP to Next Player";
+            }
+        }
+        private async Task LoadLeaderboard15v15()
+        {
+            string url = $"https://dow-api.reliclink.com/community/leaderboard/getleaderboard2?count=200&leaderboard_id=15&start=1&sortBy=1&title=dow1-de";
+            using (HttpClient client = new HttpClient())
+            {
+                string json = await client.GetStringAsync(url);
+
+                var data = JsonConvert.DeserializeObject<Root>(json);
+
+                // Build leaderboard with both API stats + WH40k custom rank system
+                var leaderboard = data.statGroups
+                    .Where(g => g.members != null && g.members.Any())
+                    .Select(g =>
+                    {
+                        var m = g.members.First();
+                        var stats = data.leaderboardStats.FirstOrDefault(s => s.statgroup_id == g.id);
+
+                        // Use your GetRankProgress method
+                        var progress = GetRankProgress(m.xp);
+
+                        return new
+                        {
+                            Alias = m.alias,
+                            Country = m.country.ToUpper(),
+                            XP = m.xp,
+
+                            // API Stats
+                            Rating = stats?.rating ?? 0,
+                            Wins = stats?.wins ?? 0,
+                            Losses = stats?.losses ?? 0,
+                            APIRank = stats?.rank ?? 0,
+
+                            // WH40k Rank System
+                            CurrentRank = progress.CurrentRank,
+                            NextRank = progress.NextRank,
+                            XPToNextRank = progress.XPToNextRank
+                        };
+                    })
+                    .OrderByDescending(x => x.Rating) // ✅ rank by Rating
+                    .ToList();
+
+                // Add XP-to-Next-Player after sorting
+                var withNextPlayer = leaderboard
+                    .Select((x, index) => new
+                    {
+                        APIRank = x.APIRank,
+                        x.Alias,
+                        x.Country,
+                        x.Rating,
+                        x.Wins,
+                        x.Losses,
+                        x.XP,
+                        XPToNextPlayer = index == 0
+            ? 0
+            : Math.Max(0, leaderboard[index - 1].XP - x.XP),
+
+                        CurrentRank = x.CurrentRank,
+                        NextRank = x.NextRank,
+                        XPToNextRank = x.XPToNextRank
+
+                    })
+                    .ToList();
+
+                orks2v2.DataSource = withNextPlayer;
+
+                orks2v2.Columns["XP"].HeaderText = "Total XP";
+                orks2v2.Columns["Rating"].HeaderText = "Rating";
+                orks2v2.Columns["Wins"].HeaderText = "Wins";
+                orks2v2.Columns["Losses"].HeaderText = "Losses";
+                orks2v2.Columns["APIRank"].HeaderText = "API Rank";
+                orks2v2.Columns["CurrentRank"].HeaderText = "DOW Rank";
+                orks2v2.Columns["NextRank"].HeaderText = "Next Rank";
+                orks2v2.Columns["XPToNextRank"].HeaderText = "XP to Next Rank";
+                orks2v2.Columns["XPToNextPlayer"].HeaderText = "XP to Next Player";
+            }
+        }
+        private async Task LoadLeaderboard16v16()
+        {
+            string url = $"https://dow-api.reliclink.com/community/leaderboard/getleaderboard2?count=200&leaderboard_id=16&start=1&sortBy=1&title=dow1-de";
+            using (HttpClient client = new HttpClient())
+            {
+                string json = await client.GetStringAsync(url);
+
+                var data = JsonConvert.DeserializeObject<Root>(json);
+
+                // Build leaderboard with both API stats + WH40k custom rank system
+                var leaderboard = data.statGroups
+                    .Where(g => g.members != null && g.members.Any())
+                    .Select(g =>
+                    {
+                        var m = g.members.First();
+                        var stats = data.leaderboardStats.FirstOrDefault(s => s.statgroup_id == g.id);
+
+                        // Use your GetRankProgress method
+                        var progress = GetRankProgress(m.xp);
+
+                        return new
+                        {
+                            Alias = m.alias,
+                            Country = m.country.ToUpper(),
+                            XP = m.xp,
+
+                            // API Stats
+                            Rating = stats?.rating ?? 0,
+                            Wins = stats?.wins ?? 0,
+                            Losses = stats?.losses ?? 0,
+                            APIRank = stats?.rank ?? 0,
+
+                            // WH40k Rank System
+                            CurrentRank = progress.CurrentRank,
+                            NextRank = progress.NextRank,
+                            XPToNextRank = progress.XPToNextRank
+                        };
+                    })
+                    .OrderByDescending(x => x.Rating) // ✅ rank by Rating
+                    .ToList();
+
+                // Add XP-to-Next-Player after sorting
+                var withNextPlayer = leaderboard
+                    .Select((x, index) => new
+                    {
+                        APIRank = x.APIRank,
+                        x.Alias,
+                        x.Country,
+                        x.Rating,
+                        x.Wins,
+                        x.Losses,
+                        x.XP,
+                        XPToNextPlayer = index == 0
+            ? 0
+            : Math.Max(0, leaderboard[index - 1].XP - x.XP),
+
+                        CurrentRank = x.CurrentRank,
+                        NextRank = x.NextRank,
+                        XPToNextRank = x.XPToNextRank
+
+                    })
+                    .ToList();
+
+                sistersofbattle2v2.DataSource = withNextPlayer;
+
+                sistersofbattle2v2.Columns["XP"].HeaderText = "Total XP";
+                sistersofbattle2v2.Columns["Rating"].HeaderText = "Rating";
+                sistersofbattle2v2.Columns["Wins"].HeaderText = "Wins";
+                sistersofbattle2v2.Columns["Losses"].HeaderText = "Losses";
+                sistersofbattle2v2.Columns["APIRank"].HeaderText = "API Rank";
+                sistersofbattle2v2.Columns["CurrentRank"].HeaderText = "DOW Rank";
+                sistersofbattle2v2.Columns["NextRank"].HeaderText = "Next Rank";
+                sistersofbattle2v2.Columns["XPToNextRank"].HeaderText = "XP to Next Rank";
+                sistersofbattle2v2.Columns["XPToNextPlayer"].HeaderText = "XP to Next Player";
+            }
+        }
+        private async Task LoadLeaderboard17v17()
+        {
+            string url = $"https://dow-api.reliclink.com/community/leaderboard/getleaderboard2?count=200&leaderboard_id=17&start=1&sortBy=1&title=dow1-de";
+            using (HttpClient client = new HttpClient())
+            {
+                string json = await client.GetStringAsync(url);
+
+                var data = JsonConvert.DeserializeObject<Root>(json);
+
+                // Build leaderboard with both API stats + WH40k custom rank system
+                var leaderboard = data.statGroups
+                    .Where(g => g.members != null && g.members.Any())
+                    .Select(g =>
+                    {
+                        var m = g.members.First();
+                        var stats = data.leaderboardStats.FirstOrDefault(s => s.statgroup_id == g.id);
+
+                        // Use your GetRankProgress method
+                        var progress = GetRankProgress(m.xp);
+
+                        return new
+                        {
+                            Alias = m.alias,
+                            Country = m.country.ToUpper(),
+                            XP = m.xp,
+
+                            // API Stats
+                            Rating = stats?.rating ?? 0,
+                            Wins = stats?.wins ?? 0,
+                            Losses = stats?.losses ?? 0,
+                            APIRank = stats?.rank ?? 0,
+
+                            // WH40k Rank System
+                            CurrentRank = progress.CurrentRank,
+                            NextRank = progress.NextRank,
+                            XPToNextRank = progress.XPToNextRank
+                        };
+                    })
+                    .OrderByDescending(x => x.Rating) // ✅ rank by Rating
+                    .ToList();
+
+                // Add XP-to-Next-Player after sorting
+                var withNextPlayer = leaderboard
+                    .Select((x, index) => new
+                    {
+                        APIRank = x.APIRank,
+                        x.Alias,
+                        x.Country,
+                        x.Rating,
+                        x.Wins,
+                        x.Losses,
+                        x.XP,
+                        XPToNextPlayer = index == 0
+            ? 0
+            : Math.Max(0, leaderboard[index - 1].XP - x.XP),
+
+                        CurrentRank = x.CurrentRank,
+                        NextRank = x.NextRank,
+                        XPToNextRank = x.XPToNextRank
+
+                    })
+                    .ToList();
+
+                spacemarines2v2.DataSource = withNextPlayer;
+
+                spacemarines2v2.Columns["XP"].HeaderText = "Total XP";
+                spacemarines2v2.Columns["Rating"].HeaderText = "Rating";
+                spacemarines2v2.Columns["Wins"].HeaderText = "Wins";
+                spacemarines2v2.Columns["Losses"].HeaderText = "Losses";
+                spacemarines2v2.Columns["APIRank"].HeaderText = "API Rank";
+                spacemarines2v2.Columns["CurrentRank"].HeaderText = "DOW Rank";
+                spacemarines2v2.Columns["NextRank"].HeaderText = "Next Rank";
+                spacemarines2v2.Columns["XPToNextRank"].HeaderText = "XP to Next Rank";
+                spacemarines2v2.Columns["XPToNextPlayer"].HeaderText = "XP to Next Player";
+            }
+        }
+        private async Task LoadLeaderboard18v18()
+        {
+            string url = $"https://dow-api.reliclink.com/community/leaderboard/getleaderboard2?count=200&leaderboard_id=18&start=1&sortBy=1&title=dow1-de";
+            using (HttpClient client = new HttpClient())
+            {
+                string json = await client.GetStringAsync(url);
+
+                var data = JsonConvert.DeserializeObject<Root>(json);
+
+                // Build leaderboard with both API stats + WH40k custom rank system
+                var leaderboard = data.statGroups
+                    .Where(g => g.members != null && g.members.Any())
+                    .Select(g =>
+                    {
+                        var m = g.members.First();
+                        var stats = data.leaderboardStats.FirstOrDefault(s => s.statgroup_id == g.id);
+
+                        // Use your GetRankProgress method
+                        var progress = GetRankProgress(m.xp);
+
+                        return new
+                        {
+                            Alias = m.alias,
+                            Country = m.country.ToUpper(),
+                            XP = m.xp,
+
+                            // API Stats
+                            Rating = stats?.rating ?? 0,
+                            Wins = stats?.wins ?? 0,
+                            Losses = stats?.losses ?? 0,
+                            APIRank = stats?.rank ?? 0,
+
+                            // WH40k Rank System
+                            CurrentRank = progress.CurrentRank,
+                            NextRank = progress.NextRank,
+                            XPToNextRank = progress.XPToNextRank
+                        };
+                    })
+                    .OrderByDescending(x => x.Rating) // ✅ rank by Rating
+                    .ToList();
+
+                // Add XP-to-Next-Player after sorting
+                var withNextPlayer = leaderboard
+                    .Select((x, index) => new
+                    {
+                        APIRank = x.APIRank,
+                        x.Alias,
+                        x.Country,
+                        x.Rating,
+                        x.Wins,
+                        x.Losses,
+                        x.XP,
+                        XPToNextPlayer = index == 0
+            ? 0
+            : Math.Max(0, leaderboard[index - 1].XP - x.XP),
+
+                        CurrentRank = x.CurrentRank,
+                        NextRank = x.NextRank,
+                        XPToNextRank = x.XPToNextRank
+
+                    })
+                    .ToList();
+
+                tau2v2.DataSource = withNextPlayer;
+
+                tau2v2.Columns["XP"].HeaderText = "Total XP";
+                tau2v2.Columns["Rating"].HeaderText = "Rating";
+                tau2v2.Columns["Wins"].HeaderText = "Wins";
+                tau2v2.Columns["Losses"].HeaderText = "Losses";
+                tau2v2.Columns["APIRank"].HeaderText = "API Rank";
+                tau2v2.Columns["CurrentRank"].HeaderText = "DOW Rank";
+                tau2v2.Columns["NextRank"].HeaderText = "Next Rank";
+                tau2v2.Columns["XPToNextRank"].HeaderText = "XP to Next Rank";
+                tau2v2.Columns["XPToNextPlayer"].HeaderText = "XP to Next Player";
             }
         }
         private void dg1v1_CellPainting(object sender, DataGridViewCellPaintingEventArgs e)
@@ -527,6 +1752,228 @@ namespace DOW_Stat_Tracker
         Ranks               // pass in your rank list
     );
         }
+            private void dg4v4_CellPainting(object sender, DataGridViewCellPaintingEventArgs e)
+        {
+            DataGridViewProgressHelper.HandleCellPainting(
+        sender, e,
+        "XP",               // column with XP
+        "XPToNextRank",     // column with XP to next rank
+        "XPToNextPlayer",   // column with XP to next player
+        Ranks               // pass in your rank list
+    ); }
+            private void dg5v5_CellPainting(object sender, DataGridViewCellPaintingEventArgs e)
+        {
+            DataGridViewProgressHelper.HandleCellPainting(
+        sender, e,
+        "XP",               // column with XP
+        "XPToNextRank",     // column with XP to next rank
+        "XPToNextPlayer",   // column with XP to next player
+        Ranks               // pass in your rank list
+    ); }
+            private void dg6v6_CellPainting(object sender, DataGridViewCellPaintingEventArgs e)
+        {
+            DataGridViewProgressHelper.HandleCellPainting(
+        sender, e,
+        "XP",               // column with XP
+        "XPToNextRank",     // column with XP to next rank
+        "XPToNextPlayer",   // column with XP to next player
+        Ranks               // pass in your rank list
+    ); }
+            private void dg7v7_CellPainting(object sender, DataGridViewCellPaintingEventArgs e)
+        {
+            DataGridViewProgressHelper.HandleCellPainting(
+        sender, e,
+        "XP",               // column with XP
+        "XPToNextRank",     // column with XP to next rank
+        "XPToNextPlayer",   // column with XP to next player
+        Ranks               // pass in your rank list
+    ); }
+            private void dg8v8_CellPainting(object sender, DataGridViewCellPaintingEventArgs e)
+        {
+            DataGridViewProgressHelper.HandleCellPainting(
+        sender, e,
+        "XP",               // column with XP
+        "XPToNextRank",     // column with XP to next rank
+        "XPToNextPlayer",   // column with XP to next player
+        Ranks               // pass in your rank list
+    ); }
+            private void dg9v9_CellPainting(object sender, DataGridViewCellPaintingEventArgs e)
+        {
+            DataGridViewProgressHelper.HandleCellPainting(
+        sender, e,
+        "XP",               // column with XP
+        "XPToNextRank",     // column with XP to next rank
+        "XPToNextPlayer",   // column with XP to next player
+        Ranks               // pass in your rank list
+    );
+        }
+        private void dg10v10_CellPainting(object sender, DataGridViewCellPaintingEventArgs e)
+        {
+            DataGridViewProgressHelper.HandleCellPainting(
+        sender, e,
+        "XP",               // column with XP
+        "XPToNextRank",     // column with XP to next rank
+        "XPToNextPlayer",   // column with XP to next player
+        Ranks               // pass in your rank list
+    );
+        }
+        private void dg11v11_CellPainting(object sender, DataGridViewCellPaintingEventArgs e)
+        {
+            DataGridViewProgressHelper.HandleCellPainting(
+        sender, e,
+        "XP",               // column with XP
+        "XPToNextRank",     // column with XP to next rank
+        "XPToNextPlayer",   // column with XP to next player
+        Ranks               // pass in your rank list
+    );
+        }
+        private void dg12v12_CellPainting(object sender, DataGridViewCellPaintingEventArgs e)
+        {
+            DataGridViewProgressHelper.HandleCellPainting(
+        sender, e,
+        "XP",               // column with XP
+        "XPToNextRank",     // column with XP to next rank
+        "XPToNextPlayer",   // column with XP to next player
+        Ranks               // pass in your rank list
+    );
+        }
+        private void dg13v13_CellPainting(object sender, DataGridViewCellPaintingEventArgs e)
+        {
+            DataGridViewProgressHelper.HandleCellPainting(
+        sender, e,
+        "XP",               // column with XP
+        "XPToNextRank",     // column with XP to next rank
+        "XPToNextPlayer",   // column with XP to next player
+        Ranks               // pass in your rank list
+    );
+        }
+        private void dg14v14_CellPainting(object sender, DataGridViewCellPaintingEventArgs e)
+        {
+            DataGridViewProgressHelper.HandleCellPainting(
+        sender, e,
+        "XP",               // column with XP
+        "XPToNextRank",     // column with XP to next rank
+        "XPToNextPlayer",   // column with XP to next player
+        Ranks               // pass in your rank list
+    );
+        }
+        private void dg15v15_CellPainting(object sender, DataGridViewCellPaintingEventArgs e)
+        {
+            DataGridViewProgressHelper.HandleCellPainting(
+        sender, e,
+        "XP",               // column with XP
+        "XPToNextRank",     // column with XP to next rank
+        "XPToNextPlayer",   // column with XP to next player
+        Ranks               // pass in your rank list
+    );
+        }
+        private void dg16v16_CellPainting(object sender, DataGridViewCellPaintingEventArgs e)
+        {
+            DataGridViewProgressHelper.HandleCellPainting(
+        sender, e,
+        "XP",               // column with XP
+        "XPToNextRank",     // column with XP to next rank
+        "XPToNextPlayer",   // column with XP to next player
+        Ranks               // pass in your rank list
+    );
+        }
+        private void dg17v17_CellPainting(object sender, DataGridViewCellPaintingEventArgs e)
+        {
+            DataGridViewProgressHelper.HandleCellPainting(
+        sender, e,
+        "XP",               // column with XP
+        "XPToNextRank",     // column with XP to next rank
+        "XPToNextPlayer",   // column with XP to next player
+        Ranks               // pass in your rank list
+    );
+        }
+        private void dg18v18_CellPainting(object sender, DataGridViewCellPaintingEventArgs e)
+        {
+            DataGridViewProgressHelper.HandleCellPainting(
+        sender, e,
+        "XP",               // column with XP
+        "XPToNextRank",     // column with XP to next rank
+        "XPToNextPlayer",   // column with XP to next player
+        Ranks               // pass in your rank list
+    );
+        }
+        private void top100Players_CellPainting(object sender, DataGridViewCellPaintingEventArgs e)
+        {
+            DataGridViewProgressHelper.HandleCellPainting(
+        sender, e,
+        "XP",               // column with XP
+        "XPToNextRank",     // column with XP to next rank
+        "XPToNextPlayer",   // column with XP to next player
+        Ranks               // pass in your rank list
+    );
+        }
+        private List<LeaderboardPlayer> BuildGlobalTop100FromGrids()
+        {
+            var allPlayers = new List<LeaderboardPlayer>();
+
+            allPlayers.AddRange(ExtractPlayersFromGrid(dg1v1));
+            allPlayers.AddRange(ExtractPlayersFromGrid(dg2v2));
+            allPlayers.AddRange(ExtractPlayersFromGrid(dg3v3));
+            allPlayers.AddRange(ExtractPlayersFromGrid(dg4v4));
+            allPlayers.AddRange(ExtractPlayersFromGrid(dg5v5));
+            allPlayers.AddRange(ExtractPlayersFromGrid(dg6v6));
+            allPlayers.AddRange(ExtractPlayersFromGrid(dg7v7));
+            allPlayers.AddRange(ExtractPlayersFromGrid(dg8v8));
+            allPlayers.AddRange(ExtractPlayersFromGrid(dg9v9));
+            allPlayers.AddRange(ExtractPlayersFromGrid(chaos2v2));
+            allPlayers.AddRange(ExtractPlayersFromGrid(darkeldar2v2));
+            allPlayers.AddRange(ExtractPlayersFromGrid(eldar2v2));
+            allPlayers.AddRange(ExtractPlayersFromGrid(imperialguard2v2));
+            allPlayers.AddRange(ExtractPlayersFromGrid(necrons2v2));
+            allPlayers.AddRange(ExtractPlayersFromGrid(orks2v2));
+            allPlayers.AddRange(ExtractPlayersFromGrid(sistersofbattle2v2));
+            allPlayers.AddRange(ExtractPlayersFromGrid(spacemarines2v2));
+            allPlayers.AddRange(ExtractPlayersFromGrid(tau2v2));
+            
+            var top100 = allPlayers
+                .OrderByDescending(p => p.Rating)
+                .Take(100)
+                .ToList();
+
+            return top100;
+        }
+
+        private List<LeaderboardPlayer> ExtractPlayersFromGrid(DataGridView grid)
+        {
+            var players = new List<LeaderboardPlayer>();
+
+            foreach (DataGridViewRow row in grid.Rows)
+            {
+                if (row.IsNewRow) continue; // skip empty row
+
+                try
+                {
+                    var player = new LeaderboardPlayer
+                    {
+                        APIRank = Convert.ToInt32(row.Cells["APIRank"].Value ?? 0),
+                        Alias = row.Cells["Alias"].Value?.ToString(),
+                        Country = row.Cells["Country"].Value?.ToString(),
+                        Rating = Convert.ToInt32(row.Cells["Rating"].Value ?? 0),
+                        Wins = Convert.ToInt32(row.Cells["Wins"].Value ?? 0),
+                        Losses = Convert.ToInt32(row.Cells["Losses"].Value ?? 0),
+                        XP = Convert.ToInt32(row.Cells["XP"].Value ?? 0),
+                        CurrentRank = row.Cells["CurrentRank"].Value?.ToString(),
+                        XPToNextPlayer = Convert.ToInt32(row.Cells["XPToNextPlayer"].Value ?? 0),
+                        NextRank = row.Cells["NextRank"].Value?.ToString(),
+                        XPToNextRank = Convert.ToInt32(row.Cells["XPToNextRank"].Value ?? 0)
+                    };
+
+                    players.Add(player);
+                }
+                catch
+                {
+                    // Ignore malformed rows
+                }
+            }
+
+            return players;
+        }
+
         // Generic helper you can reuse (adjust names if you already have a helper)
         public static class DataGridViewProgressHelper
         {
@@ -1141,7 +2588,21 @@ namespace DOW_Stat_Tracker
             var bestRating = raceStats.OrderByDescending(x => x.AvgRating).FirstOrDefault();
             lblBestRaceRating.Text = bestRating != null ? $"Best AVG Rating: {bestRating.RaceName} ({bestRating.AvgRating:F0})" : "N/A";
         }
+        private async Task LoadTop100()
+        {
+            var top100 = BuildGlobalTop100FromGrids();
+            top100Players.DataSource = top100;
 
+            top100Players.Columns["XP"].HeaderText = "Total XP";
+            top100Players.Columns["Rating"].HeaderText = "Rating";
+            top100Players.Columns["Wins"].HeaderText = "Wins";
+            top100Players.Columns["Losses"].HeaderText = "Losses";
+            top100Players.Columns["APIRank"].HeaderText = "API Rank";
+            top100Players.Columns["CurrentRank"].HeaderText = "DOW Rank";
+            top100Players.Columns["NextRank"].HeaderText = "Next Rank";
+            top100Players.Columns["XPToNextRank"].HeaderText = "XP to Next Rank";
+            top100Players.Columns["XPToNextPlayer"].HeaderText = "XP to Next Player";
+        }
         private async void Form1_Load(object sender, EventArgs e)
         {
             this.Text = "DOW Stat Tracker by INSTINCT";
@@ -1149,6 +2610,22 @@ namespace DOW_Stat_Tracker
             dg1v1.CellPainting += dg1v1_CellPainting;
             dg2v2.CellPainting += dg2v2_CellPainting;
             dg3v3.CellPainting += dg3v3_CellPainting;
+            dg4v4.CellPainting += dg4v4_CellPainting;
+            dg5v5.CellPainting += dg5v5_CellPainting;
+            dg6v6.CellPainting += dg6v6_CellPainting;
+            dg7v7.CellPainting += dg7v7_CellPainting;
+            dg8v8.CellPainting += dg8v8_CellPainting;
+            dg9v9.CellPainting += dg9v9_CellPainting;
+            chaos2v2.CellPainting += dg10v10_CellPainting;
+            darkeldar2v2.CellPainting += dg11v11_CellPainting;
+            eldar2v2.CellPainting += dg12v12_CellPainting;
+            imperialguard2v2.CellPainting += dg13v13_CellPainting;
+            necrons2v2.CellPainting += dg14v14_CellPainting;
+            orks2v2.CellPainting += dg15v15_CellPainting;
+            sistersofbattle2v2.CellPainting += dg16v16_CellPainting;
+            spacemarines2v2.CellPainting += dg17v17_CellPainting;
+            tau2v2.CellPainting += dg18v18_CellPainting;
+            top100Players.CellPainting += top100Players_CellPainting;
             txtUsername.Text = Properties.Settings.Default.LastUsername;
             if (Properties.Settings.Default.AutoRefresh == true)
             {
@@ -1172,6 +2649,22 @@ namespace DOW_Stat_Tracker
             await LoadLeaderboard1v1();
             await LoadLeaderboard2v2();
             await LoadLeaderboard3v3();
+            await LoadLeaderboard4v4();
+            await LoadLeaderboard5v5();
+            await LoadLeaderboard6v6();
+            await LoadLeaderboard7v7();
+            await LoadLeaderboard8v8();
+            await LoadLeaderboard9v9();
+            await LoadLeaderboard10v10();
+            await LoadLeaderboard11v11();
+            await LoadLeaderboard12v12();
+            await LoadLeaderboard13v13();
+            await LoadLeaderboard14v14();
+            await LoadLeaderboard15v15();
+            await LoadLeaderboard16v16();
+            await LoadLeaderboard17v17();
+            await LoadLeaderboard18v18();
+            await LoadTop100();
         }
 
         private void pictureBox11_Click(object sender, EventArgs e)
@@ -1230,7 +2723,7 @@ namespace DOW_Stat_Tracker
         private async void button2_Click(object sender, EventArgs e)
         {
             panel2v2.Location = new Point(dg2v2.Location.X, dg2v2.Location.Y);
-            panel2v2.Bounds = dg1v1.Bounds;
+            panel2v2.Bounds = dg2v2.Bounds;
             panel2v2.BackColor = Color.FromArgb(128, Color.Gray); // semi-transparent black
             panel2v2.Visible = true;
             await LoadLeaderboard2v2();
@@ -1263,6 +2756,93 @@ namespace DOW_Stat_Tracker
         {
             string searchAlias = textBox2.Text;
             DataGridViewSearchHelper.SearchAndHighlight(dg2v2, "Alias", searchAlias, selectRow: true);
+        }
+
+        private async void button8_Click(object sender, EventArgs e)
+        {
+            panel4v4.Location = new Point(dg4v4.Location.X, dg4v4.Location.Y);
+            panel4v4.Bounds = dg4v4.Bounds;
+            panel4v4.BackColor = Color.FromArgb(128, Color.Gray); // semi-transparent black
+            panel4v4.Visible = true;
+            await LoadLeaderboard4v4();
+            panel4v4.Visible = false;
+        }
+
+        private async void button10_Click(object sender, EventArgs e)
+        {
+            panel5v5.Location = new Point(dg5v5.Location.X, dg5v5.Location.Y);
+            panel5v5.Bounds = dg5v5.Bounds;
+            panel5v5.BackColor = Color.FromArgb(128, Color.Gray); // semi-transparent black
+            panel5v5.Visible = true;
+            await LoadLeaderboard5v5();
+            panel5v5.Visible = false;
+
+        }
+
+        private async void button12_Click(object sender, EventArgs e)
+        {
+            panel6v6.Location = new Point(dg6v6.Location.X, dg6v6.Location.Y);
+            panel6v6.Bounds = dg6v6.Bounds;
+            panel6v6.BackColor = Color.FromArgb(128, Color.Gray); // semi-transparent black
+            panel6v6.Visible = true;
+            await LoadLeaderboard6v6();
+            panel6v6.Visible = false;
+        }
+
+        private async void button14_Click(object sender, EventArgs e)
+        {
+            panel7v7.Location = new Point(dg7v7.Location.X, dg7v7.Location.Y);
+            panel7v7.Bounds = dg7v7.Bounds;
+            panel7v7.BackColor = Color.FromArgb(128, Color.Gray); // semi-transparent black
+            panel7v7.Visible = true;
+            await LoadLeaderboard7v7();
+            panel7v7.Visible = false;
+        }
+
+        private async void button16_Click(object sender, EventArgs e)
+        {
+            panel8v8.Location = new Point(dg8v8.Location.X, dg8v8.Location.Y);
+            panel8v8.Bounds = dg8v8.Bounds;
+            panel8v8.BackColor = Color.FromArgb(128, Color.Gray); // semi-transparent black
+            panel8v8.Visible = true;
+            await LoadLeaderboard8v8();
+            panel8v8.Visible = false;
+        }
+
+        private async void button18_Click(object sender, EventArgs e)
+        {
+            panel9v9.Location = new Point(dg9v9.Location.X, dg9v9.Location.Y);
+            panel9v9.Bounds = dg9v9.Bounds;
+            panel9v9.BackColor = Color.FromArgb(128, Color.Gray); // semi-transparent black
+            panel9v9.Visible = true;
+            await LoadLeaderboard9v9();
+            panel9v9.Visible = false;
+        }
+
+        private async void button19_Click(object sender, EventArgs e)
+        {
+            panel4v40.Bounds = this.ClientRectangle;
+            panel4v40.Visible = true;
+            pictureBox1.Visible = true;
+            await LoadLeaderboard1v1();
+            await LoadLeaderboard2v2();
+            await LoadLeaderboard3v3();
+            await LoadLeaderboard4v4();
+            await LoadLeaderboard5v5();
+            await LoadLeaderboard6v6();
+            await LoadLeaderboard7v7();
+            await LoadLeaderboard8v8();
+            await LoadLeaderboard9v9();
+            await LoadLeaderboard10v10();
+            await LoadLeaderboard11v11();
+            await LoadLeaderboard12v12();
+            await LoadLeaderboard13v13();
+            await LoadLeaderboard14v14();
+            await LoadLeaderboard15v15();
+            await LoadLeaderboard16v16();
+            await LoadLeaderboard17v17();
+            await LoadLeaderboard18v18();
+            btnLoadJson.PerformClick();
         }
     }
 }
