@@ -1,4 +1,4 @@
-version=1.1.0
+version=1.0.0
 changelog=Fixed crash issue;Improved performance;New leaderboard stats
 url=https://github.com/INSTINCT9413/DOW-Stat-Tracker/releases/download/v1.1.0/DOW-Stat-Tracker.zip
 
