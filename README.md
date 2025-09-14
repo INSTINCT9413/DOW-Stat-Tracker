@@ -39,12 +39,12 @@ Built in **C# WinForms**, this app fetches data from the official Relic API and 
 
 ## ⚙️ Usage
 
-1. Enter a **player alias** and click **Get Stats**.  
+1. Enter a **player alias** and click **Search Player**.  
 2. Navigate through tabs:  
-   - **Overview** → Favorite race, best win rate, top rating.  
+   - **Profile Summary** → Favorite race, best win rate, top rating.  
    - **Recent Matches** → Automatched games list.  
-   - **Race Tabs** → Detailed per-race stats.  
-   - **Leaderboard** → Global ranking with XP progress bars.  
+   - **Race Stats** → Detailed per-race stats.  
+   - **Community** → Contaions all global ranking with XP progress bars.  
 3. Configure auto-refresh and preferences in **Settings**.
 
 ---
