@@ -11,19 +11,21 @@ Built in **C# WinForms**, this app fetches data from the official Relic API and 
 
 ---
 
-## ✨ Features
+## ✨ Features  
 
-- 🔎 **Search Players by Alias**  
-- 📈 **Display Recent Matches (Automatched only)**  
-- 🏆 **Favorite Race Detection** (based on games played)  
-- ⚔️ **Per-Race Statistics** (wins, losses, last match date)  
-- 📊 **Leaderboard Integration** (rankings, XP, DOW-themed rank system)  
-- 🖼️ **Steam Profile Picture Display** (auto-fetch from Steam, fallback image included)  
-- ⏱️ **Auto-Refresh Stats** (configurable interval in settings)  
-- 💾 **Persistent User Settings** (remembers last searched alias)  
-- 📂 **Quick Access to Settings File** (open `user.config` directly in Explorer)  
-- 🎨 **Custom Rank System** based on XP with WH40k-inspired titles (Recruit → Emperor)  
-- 🔄 **Loading Overlay Animation** while fetching data  
+- 🔎 **Search Players by Alias** – quickly find and highlight players in any leaderboard  
+- 📈 **Display Recent Matches** – shows automatched matches with stats  
+- 🏆 **Favorite Race Detection** – determines your most-played race by total games  
+- ⚔️ **Per-Race Statistics** – wins, losses, streaks, and last match date per race  
+- 📊 **Leaderboard Integration** – supports 1v1, 2v2, 3v3, and more, ranked by official API rating  
+- 🎖️ **Custom WH40k Rank System** – XP-based ranks (Recruit → Emperor) with progress tracking  
+- 📊 **In-Cell Progress Bars** – visualize XP to next rank and XP to next player directly in the leaderboard grid  
+- 🔄 **Cross-Leaderboard Top 100** – combines all modes (1v1, 2v2, 3v3, etc.) and ranks by rating  
+- 🖼️ **Steam Profile Picture Display** – auto-fetch from Steam, with fallback image included  
+- ⏱️ **Auto-Refresh Stats** – configurable refresh interval in settings  
+- 💾 **Persistent User Settings** – remembers last searched alias and preferences  
+- 📂 **Quick Access to Settings File** – opens `user.config` directly in Explorer  
+- 🔄 **Loading Overlay Animation** – smooth visual feedback while fetching leaderboard data  
 
 ---
 
