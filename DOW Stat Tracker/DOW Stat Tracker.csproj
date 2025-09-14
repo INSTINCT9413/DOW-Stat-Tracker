@@ -42,9 +42,12 @@
     <Reference Include="Newtonsoft.Json, Version=13.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.13.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
+    <Reference Include="PresentationCore" />
     <Reference Include="System" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Runtime.Remoting" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -54,6 +57,8 @@
     <Reference Include="System.Net.Http" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
+    <Reference Include="UIAutomationClient" />
+    <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Form1.cs">
@@ -259,34 +264,16 @@
     <None Include="Resources\6%40512px4.png" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Resources\Captain.png" />
-  </ItemGroup>
-  <ItemGroup>
     <None Include="Resources\Chapter Master.png" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\Emperor.png" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Resources\Inquisitor.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\Lieutenant.png" />
-  </ItemGroup>
-  <ItemGroup>
     <None Include="Resources\LordCommader.png" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Resources\Major.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\Recruit.png" />
-  </ItemGroup>
-  <ItemGroup>
     <None Include="Resources\Scout.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\Sergeant.png" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\StormTrooper.png" />
@@ -332,9 +319,49 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="logo.ico" />
+    <None Include="Resources\Recruit1.png" />
+    <None Include="Resources\Steam_icon_logo.svg.png" />
+    <None Include="Resources\Warmaster.png" />
+    <None Include="Resources\TankCommander.png" />
+    <None Include="Resources\Sergeant.png" />
+    <None Include="Resources\Recruit.png" />
+    <None Include="Resources\Primarch.png" />
+    <None Include="Resources\Master.png" />
+    <None Include="Resources\Marshal.png" />
+    <None Include="Resources\MajorGeneral.png" />
+    <None Include="Resources\Major.png" />
+    <None Include="Resources\LordGeneralMilitant.png" />
+    <None Include="Resources\LordGeneral.png" />
+    <None Include="Resources\LordConstable.png" />
+    <None Include="Resources\LordCommanderMilitant.png" />
+    <None Include="Resources\LordCommander.png" />
+    <None Include="Resources\LieutenantGeneral.png" />
+    <None Include="Resources\Lieutenant.png" />
+    <None Include="Resources\Librarian.png" />
+    <None Include="Resources\InquisitorLord.png" />
+    <None Include="Resources\Inquisitor.png" />
+    <None Include="Resources\ImperialRegent.png" />
+    <None Include="Resources\HighLordsofTerra.png" />
+    <None Include="Resources\Guardsman.png" />
+    <None Include="Resources\Grandmaster.png" />
+    <None Include="Resources\General.png" />
+    <None Include="Resources\EmperorofMankind.png" />
+    <None Include="Resources\Corporal.png" />
+    <None Include="Resources\Conscript.png" />
+    <None Include="Resources\Commissar.png" />
+    <None Include="Resources\Commandant.png" />
+    <None Include="Resources\ColonelCommissar.png" />
+    <None Include="Resources\Colonel.png" />
+    <None Include="Resources\Codicier.png" />
+    <None Include="Resources\ChiefLibrarian.png" />
+    <None Include="Resources\ChiefCommandant.png" />
+    <None Include="Resources\ChapterMaster.png" />
+    <None Include="Resources\Castellan.png" />
+    <None Include="Resources\Captain-General.png" />
+    <None Include="Resources\Captain.png" />
+    <None Include="Resources\BattleBrother.png" />
     <None Include="Resources\ring-alt.gif" />
     <None Include="Resources\loading5.gif" />
-    <None Include="Resources\Steam_icon_logo.svg.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\System.ValueTuple.4.6.1\build\net471\System.ValueTuple.targets" Condition="Exists('..\packages\System.ValueTuple.4.6.1\build\net471\System.ValueTuple.targets')" />

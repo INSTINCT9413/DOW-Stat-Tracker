@@ -118,127 +118,205 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
-  <data name="square-light" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\square-light.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="VeteranStormTrooper" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\VeteranStormTrooper.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="Captain" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\Captain.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="square-box" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\square-box.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="Major" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\Major.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="2fce02f88ddefa003d706e97b523ca7a" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\2fce02f88ddefa003d706e97b523ca7a1.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="DoWSSTauEmpireHouseMark" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\DoWSSTauEmpireHouseMark.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="info1" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\info.ico;System.Drawing.Icon, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="_2fce02f88ddefa003d706e97b523ca7a" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\2fce02f88ddefa003d706e97b523ca7a.ico;System.Drawing.Icon, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="StormTrooper" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\StormTrooper.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="DoWSSImperialGuardHouseMark" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\DoWSSImperialGuardHouseMark.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="DoWSSSistersOfBattleHouseMark" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\DoWSSSistersOfBattleHouseMark.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="VeteranScout" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\VeteranScout.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="logo" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\2fce02f88ddefa003d706e97b523ca7a.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="DoWSSSpaceMarinesHouseMark1" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\DoWSSSpaceMarinesHouseMark1.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="DoWSSDarkEldarHouseMark" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\DoWSSDarkEldarHouseMark.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="DoWSSChaosSpaceMarinesHouseMark" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\DoWSSChaosSpaceMarinesHouseMark.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
   <data name="DoWSSNecronsHouseMark" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\DoWSSNecronsHouseMark.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="DoWSSOrksHouseMark" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\DoWSSOrksHouseMark.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="Lieutenant" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\Lieutenant.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="7sf4u9dsyqwe1" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\7sf4u9dsyqwe1.jpeg;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="Relic-entertainment-logo.svg" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\Relic-entertainment-logo.svg.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
-  <data name="Recruit" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\Recruit.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  <data name="logo" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\2fce02f88ddefa003d706e97b523ca7a.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
-  <data name="Sergeant" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\Sergeant.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="DoWSSSpaceMarinesHouseMark" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\DoWSSSpaceMarinesHouseMark.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="Emperor" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\Emperor.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="Inquisitor" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\Inquisitor.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="info" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\info.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="hub_dow_de_logo_582b96d87c" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\hub_dow_de_logo_582b96d87c.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="logo1" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\logo.ico;System.Drawing.Icon, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="Scout" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\Scout.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="Steam_icon_logo.svg" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\Steam_icon_logo.svg.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="gear1" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\gear.ico;System.Drawing.Icon, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  <data name="Guardsman" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\Guardsman.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="tpLoading" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\tpLoading.gif;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
-  <data name="gear" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\gear.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  <data name="Librarian" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\Librarian.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
-  <data name="Trooper" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\Trooper.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  <data name="ColonelCommissar" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\ColonelCommissar.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
-  <data name="LordCommader" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\LordCommader.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  <data name="ring-alt" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\ring-alt.gif;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
-  <data name="Chapter_Master" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\Chapter Master.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  <data name="ChiefLibrarian" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\ChiefLibrarian.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
-  <data name="DoWSSEldarHouseMark" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\DoWSSEldarHouseMark.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  <data name="2fce02f88ddefa003d706e97b523ca7a" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\2fce02f88ddefa003d706e97b523ca7a1.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="logo1" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\logo.ico;System.Drawing.Icon, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Primarch" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\Primarch.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Conscript" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\Conscript.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="7sf4u9dsyqwe1" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\7sf4u9dsyqwe1.jpeg;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="ImperialRegent" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\ImperialRegent.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Recruit" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\Recruit.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Steam_icon_logo_svg" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\Steam_icon_logo.svg.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Colonel" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\Colonel.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="square-light" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\square-light.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Sergeant" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\Sergeant.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="TankCommander" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\TankCommander.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="DoWSSSpaceMarinesHouseMark" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\DoWSSSpaceMarinesHouseMark.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Marshal" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\Marshal.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="LordGeneralMilitant" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\LordGeneralMilitant.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Master" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\Master.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="info" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\info.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Captain_General" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\Captain-General.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="square-box" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\square-box.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="hub_dow_de_logo_582b96d87c" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\hub_dow_de_logo_582b96d87c.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="BattleBrother" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\BattleBrother.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Castellan" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\Castellan.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="DoWSSImperialGuardHouseMark" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\DoWSSImperialGuardHouseMark.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="loading5" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\loading5.gif;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
-  <data name="ring-alt" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\ring-alt.gif;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  <data name="Corporal" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\Corporal.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="LordCommanderMilitant" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\LordCommanderMilitant.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="LieutenantGeneral" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\LieutenantGeneral.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="General" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\General.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="EmperorofMankind" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\EmperorofMankind.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="DoWSSSpaceMarinesHouseMark1" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\DoWSSSpaceMarinesHouseMark1.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Major" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\Major.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="info1" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\info.ico;System.Drawing.Icon, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="DoWSSSistersOfBattleHouseMark" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\DoWSSSistersOfBattleHouseMark.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Inquisitor" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\Inquisitor.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="DoWSSChaosSpaceMarinesHouseMark" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\DoWSSChaosSpaceMarinesHouseMark.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="LordGeneral" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\LordGeneral.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="InquisitorLord" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\InquisitorLord.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="DoWSSEldarHouseMark" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\DoWSSEldarHouseMark.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="gear" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\gear.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="ChapterMaster" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\ChapterMaster.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Grandmaster" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\Grandmaster.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="ChiefCommandant" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\ChiefCommandant.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Lieutenant" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\Lieutenant.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Captain" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\Captain.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="gear1" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\gear.ico;System.Drawing.Icon, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Commandant" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\Commandant.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="HighLordsofTerra" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\HighLordsofTerra.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="MajorGeneral" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\MajorGeneral.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="LordConstable" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\LordConstable.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="_2fce02f88ddefa003d706e97b523ca7a" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\2fce02f88ddefa003d706e97b523ca7a.ico;System.Drawing.Icon, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="LordCommander" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\LordCommander.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="DoWSSTauEmpireHouseMark" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\DoWSSTauEmpireHouseMark.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="DoWSSOrksHouseMark" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\DoWSSOrksHouseMark.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Codicier" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\Codicier.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Warmaster" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\Warmaster.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="DoWSSDarkEldarHouseMark" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\DoWSSDarkEldarHouseMark.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Commissar" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\Commissar.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Recruit1" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\Recruit1.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
 </root>

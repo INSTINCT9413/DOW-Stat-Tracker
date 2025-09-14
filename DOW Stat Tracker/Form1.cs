@@ -335,22 +335,55 @@ namespace DOW_Stat_Tracker
 
         List<PlayerRank> Ranks = new List<PlayerRank>
 {
-    new PlayerRank { Level = 1, MinXP = 0, RankName = "Recruit", RankIcon = Properties.Resources.Recruit },
-    new PlayerRank { Level = 2, MinXP = 10000, RankName = "Scout", RankIcon = Properties.Resources.Scout },
-    new PlayerRank { Level = 3, MinXP = 50000, RankName = "Veteran Scout", RankIcon = Properties.Resources.VeteranScout },
-    new PlayerRank { Level = 4, MinXP = 150000, RankName = "Trooper", RankIcon = Properties.Resources.Trooper },
-    new PlayerRank { Level = 5, MinXP = 300000, RankName = "Stormtrooper", RankIcon = Properties.Resources.StormTrooper },
-    new PlayerRank { Level = 6, MinXP = 600000, RankName = "Veteran Stormtrooper", RankIcon = Properties.Resources.VeteranStormTrooper },
-    new PlayerRank { Level = 7, MinXP = 1000000, RankName = "Sergeant", RankIcon = Properties.Resources.Sergeant },
-    new PlayerRank { Level = 8, MinXP = 1500000, RankName = "Lieutenant", RankIcon = Properties.Resources.Lieutenant },
-    new PlayerRank { Level = 9, MinXP = 2200000, RankName = "Captain", RankIcon = Properties.Resources.Captain },
-    new PlayerRank { Level = 10, MinXP = 3600000, RankName = "Major", RankIcon = Properties.Resources.Major },
-    new PlayerRank { Level = 11, MinXP = 4200000, RankName = "Chapter Master", RankIcon = Properties.Resources.Chapter_Master },
-    new PlayerRank { Level = 12, MinXP = 6000000, RankName = "Lord Commander", RankIcon = Properties.Resources.LordCommader },
-    new PlayerRank { Level = 13, MinXP = 8000000, RankName = "Inquisitor", RankIcon = Properties.Resources.Inquisitor },
-    new PlayerRank { Level = 14, MinXP = 9700000, RankName = "Emperor", RankIcon = Properties.Resources.Emperor }
-    // add more as you see fit
+    // Levels 0-10 (×0.5)
+    new PlayerRank { Level = 0, MinXP = 0, RankName = "Recruit", RankIcon = Properties.Resources.Recruit },
+    new PlayerRank { Level = 1, MinXP = 500, RankName = "Conscript", RankIcon = Properties.Resources.Conscript },
+    new PlayerRank { Level = 2, MinXP = 750, RankName = "Guardsman", RankIcon = Properties.Resources.Guardsman },
+    new PlayerRank { Level = 3, MinXP = 1125, RankName = "Corporal", RankIcon = Properties.Resources.Corporal },
+    new PlayerRank { Level = 4, MinXP = 1687, RankName = "Sergeant", RankIcon = Properties.Resources.Sergeant },
+    new PlayerRank { Level = 5, MinXP = 2531, RankName = "Battle Brother", RankIcon = Properties.Resources.BattleBrother },
+    new PlayerRank { Level = 6, MinXP = 3796, RankName = "Lieutenant", RankIcon = Properties.Resources.Lieutenant },
+    new PlayerRank { Level = 7, MinXP = 5694, RankName = "Tank Commander", RankIcon = Properties.Resources.TankCommander },
+    new PlayerRank { Level = 8, MinXP = 8541, RankName = "Captain", RankIcon = Properties.Resources.Captain },
+    new PlayerRank { Level = 9, MinXP = 12812, RankName = "Major", RankIcon = Properties.Resources.Major },
+    new PlayerRank { Level = 10, MinXP = 19218, RankName = "Colonel", RankIcon = Properties.Resources.Colonel },
+
+    // Levels 11-38 (×1.5 until 20, then perfect exponential)
+    new PlayerRank { Level = 11, MinXP = 28827, RankName = "Commissar", RankIcon = Properties.Resources.Commissar },
+    new PlayerRank { Level = 12, MinXP = 43241, RankName = "Colonel Commissar", RankIcon = Properties.Resources.ColonelCommissar },
+    new PlayerRank { Level = 13, MinXP = 64861, RankName = "Castellan", RankIcon = Properties.Resources.Castellan },
+    new PlayerRank { Level = 14, MinXP = 97291, RankName = "Codicier", RankIcon = Properties.Resources.Codicier },
+    new PlayerRank { Level = 15, MinXP = 145936, RankName = "Librarian", RankIcon = Properties.Resources.Librarian },
+    new PlayerRank { Level = 16, MinXP = 218904, RankName = "Chief Librarian", RankIcon = Properties.Resources.ChiefLibrarian },
+    new PlayerRank { Level = 17, MinXP = 328356, RankName = "Chapter Master", RankIcon = Properties.Resources.ChapterMaster },
+    new PlayerRank { Level = 18, MinXP = 492534, RankName = "Major General", RankIcon = Properties.Resources.MajorGeneral },
+    new PlayerRank { Level = 19, MinXP = 738801, RankName = "Lieutenant General", RankIcon = Properties.Resources.LieutenantGeneral },
+    new PlayerRank { Level = 20, MinXP = 1108201, RankName = "Marshal", RankIcon = Properties.Resources.Marshal },
+
+    // Levels 21-38: smooth exponential (r ≈ 1.198)
+    new PlayerRank { Level = 21, MinXP = 1328679, RankName = "General", RankIcon = Properties.Resources.General },
+    new PlayerRank { Level = 22, MinXP = 1592863, RankName = "Inquisitor", RankIcon = Properties.Resources.Inquisitor },
+    new PlayerRank { Level = 23, MinXP = 1909111, RankName = "Inquisitor Lord", RankIcon = Properties.Resources.InquisitorLord },
+    new PlayerRank { Level = 24, MinXP = 2288362, RankName = "Master", RankIcon = Properties.Resources.Master },
+    new PlayerRank { Level = 25, MinXP = 2740925, RankName = "Grandmaster", RankIcon = Properties.Resources.Grandmaster },
+    new PlayerRank { Level = 26, MinXP = 3281084, RankName = "Lord General", RankIcon = Properties.Resources.LordGeneral },
+    new PlayerRank { Level = 27, MinXP = 3926263, RankName = "Lord General Militant", RankIcon = Properties.Resources.LordGeneralMilitant },
+    new PlayerRank { Level = 28, MinXP = 4704882, RankName = "Warmaster", RankIcon = Properties.Resources.Warmaster },
+    new PlayerRank { Level = 29, MinXP = 5633985, RankName = "Lord Commander", RankIcon = Properties.Resources.LordCommander },
+    new PlayerRank { Level = 30, MinXP = 6749468, RankName = "Lord Commander Militant", RankIcon = Properties.Resources.LordCommanderMilitant },
+    new PlayerRank { Level = 31, MinXP = 8087713, RankName = "Commandant", RankIcon = Properties.Resources.Commandant },
+    new PlayerRank { Level = 32, MinXP = 9686716, RankName = "Lord Constable", RankIcon = Properties.Resources.LordConstable },
+    new PlayerRank { Level = 33, MinXP = 10601427, RankName = "Captain-General", RankIcon = Properties.Resources.Captain_General },
+    new PlayerRank { Level = 34, MinXP = 12899419, RankName = "Chief Commandant", RankIcon = Properties.Resources.ChiefCommandant },
+    new PlayerRank { Level = 35, MinXP = 14644580, RankName = "Primarch", RankIcon = Properties.Resources.Primarch },
+	
+    // Levels 36–38: perfectly smooth exponential to reach 20,000,000
+	new PlayerRank { Level = 36, MinXP = 16644580, RankName = "Imperial Regent", RankIcon = Properties.Resources.ImperialRegent },
+    new PlayerRank { Level = 37, MinXP = 18716768, RankName = "High Lords of Terra", RankIcon = Properties.Resources.HighLordsofTerra },
+    new PlayerRank { Level = 38, MinXP = 20000000, RankName = "Emperor of Mankind", RankIcon = Properties.Resources.EmperorofMankind }
+
 };
+
         private async Task LoadLeaderboard1v1()
         {
             string url = "https://dow-api.reliclink.com/community/leaderboard/getleaderboard2?count=200&leaderboard_id=1&start=1&sortBy=1&title=dow1-de";
