@@ -6,7 +6,7 @@
 ![Stars](https://img.shields.io/github/stars/INSTINCT9413/DOW-Stat-Tracker?style=social)
 ![Build](https://img.shields.io/badge/build-passing-brightgreen)
 
-A **desktop application** for tracking **Warhammer 40,000: Dawn of War - Definitive Edition** multiplayer stats.  
+A **desktop application** for tracking [**Warhammer 40,000: Dawn of War - Definitive Edition**](https://store.steampowered.com/app/3556750/Warhammer_40000_Dawn_of_War__Definitive_Edition/) multiplayer stats.  
 Built in **C# WinForms**, this app fetches data from the official Relic API and presents it in a clean, modern UI with advanced features like race-specific stats, favorite race detection, and leaderboard tracking.
 
 ---
