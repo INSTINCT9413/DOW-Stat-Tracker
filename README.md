@@ -6,24 +6,26 @@
 ![Stars](https://img.shields.io/github/stars/INSTINCT9413/DOW-Stat-Tracker?style=social)
 ![Build](https://img.shields.io/badge/build-passing-brightgreen)
 
-A **desktop application** for tracking **Dawn of War: Soulstorm (DE)** multiplayer stats.  
+A **desktop application** for tracking [**Warhammer 40,000: Dawn of War - Definitive Edition**](https://store.steampowered.com/app/3556750/Warhammer_40000_Dawn_of_War__Definitive_Edition/) multiplayer stats.  
 Built in **C# WinForms**, this app fetches data from the official Relic API and presents it in a clean, modern UI with advanced features like race-specific stats, favorite race detection, and leaderboard tracking.
 
 ---
 
-## ✨ Features
+## ✨ Features  
 
-- 🔎 **Search Players by Alias**  
-- 📈 **Display Recent Matches (Automatched only)**  
-- 🏆 **Favorite Race Detection** (based on games played)  
-- ⚔️ **Per-Race Statistics** (wins, losses, last match date)  
-- 📊 **Leaderboard Integration** (rankings, XP, DOW-themed rank system)  
-- 🖼️ **Steam Profile Picture Display** (auto-fetch from Steam, fallback image included)  
-- ⏱️ **Auto-Refresh Stats** (configurable interval in settings)  
-- 💾 **Persistent User Settings** (remembers last searched alias)  
-- 📂 **Quick Access to Settings File** (open `user.config` directly in Explorer)  
-- 🎨 **Custom Rank System** based on XP with WH40k-inspired titles (Recruit → Emperor)  
-- 🔄 **Loading Overlay Animation** while fetching data  
+- 🔎 **Search Players by Alias** – quickly find and highlight players in any leaderboard  
+- 📈 **Display Recent Matches** – shows automatched matches with stats  
+- 🏆 **Favorite Race Detection** – determines your most-played race by total games  
+- ⚔️ **Per-Race Statistics** – wins, losses, streaks, and last match date per race  
+- 📊 **Leaderboard Integration** – supports 1v1, 2v2, 3v3, and more, ranked by official API rating  
+- 🎖️ **Custom WH40k Rank System** – XP-based ranks (Recruit → Emperor) with progress tracking  
+- 📊 **In-Cell Progress Bars** – visualize XP to next rank and XP to next player directly in the leaderboard grid  
+- 🔄 **Cross-Leaderboard Top 100** – combines all modes (1v1, 2v2, 3v3, etc.) and ranks by rating  
+- 🖼️ **Steam Profile Picture Display** – auto-fetch from Steam, with fallback image included  
+- ⏱️ **Auto-Refresh Stats** – configurable refresh interval in settings  
+- 💾 **Persistent User Settings** – remembers last searched alias and preferences  
+- 📂 **Quick Access to Settings File** – opens `user.config` directly in Explorer  
+- 🔄 **Loading Overlay Animation** – smooth visual feedback while fetching leaderboard data  
 
 ---
 
@@ -37,12 +39,12 @@ Built in **C# WinForms**, this app fetches data from the official Relic API and 
 
 ## ⚙️ Usage
 
-1. Enter a **player alias** and click **Get Stats**.  
+1. Enter a **player alias** and click **Search Player**.  
 2. Navigate through tabs:  
-   - **Overview** → Favorite race, best win rate, top rating.  
+   - **Profile Summary** → Favorite race, best win rate, top rating.  
    - **Recent Matches** → Automatched games list.  
-   - **Race Tabs** → Detailed per-race stats.  
-   - **Leaderboard** → Global ranking with XP progress bars.  
+   - **Race Stats** → Detailed per-race stats.  
+   - **Community** → Contaions all global ranking with XP progress bars.  
 3. Configure auto-refresh and preferences in **Settings**.
 
 ---
