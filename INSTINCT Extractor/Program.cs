@@ -78,6 +78,7 @@ namespace INSTINCT_Extractor
             {
                 Console.WriteLine("Update failed: " + ex.Message);
             }
+            Console.WriteLine("You can safely close this updater.");
         }
     }
 }

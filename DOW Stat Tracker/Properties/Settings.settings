@@ -11,5 +11,8 @@
     <Setting Name="AutoRefreshTime" Type="System.Int16" Scope="User">
       <Value Profile="(Default)">10</Value>
     </Setting>
+    <Setting Name="UpgradeRequired" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

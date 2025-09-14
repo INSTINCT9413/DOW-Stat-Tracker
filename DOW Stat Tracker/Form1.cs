@@ -2638,7 +2638,15 @@ namespace DOW_Stat_Tracker
         }
         private async void Form1_Load(object sender, EventArgs e)
         {
+            if (Properties.Settings.Default.UpgradeRequired)
+            {
+                Properties.Settings.Default.Upgrade();
+                Properties.Settings.Default.UpgradeRequired = false;
+                Properties.Settings.Default.Save();
+            }
+
             this.Text = "DOW Stat Tracker by INSTINCT";
+            label118.Text = "v" + Application.ProductVersion;
             this.Icon = Properties.Resources.logo1;
             dg1v1.CellPainting += dg1v1_CellPainting;
             dg2v2.CellPainting += dg2v2_CellPainting;

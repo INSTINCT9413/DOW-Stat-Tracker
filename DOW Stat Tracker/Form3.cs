@@ -160,6 +160,8 @@ namespace DOW_Stat_Tracker
 
                     if (result == DialogResult.Yes)
                     {
+                        Properties.Settings.Default.UpgradeRequired = true;
+                        Properties.Settings.Default.Save();
                         await DownloadAndUpdate(downloadUrl, latestVersion);
                     }
                 }
@@ -174,7 +176,7 @@ namespace DOW_Stat_Tracker
         private async Task DownloadAndUpdate(string downloadUrl, string newVersion)
         {
             // Temp zip location
-            string tempFile = Path.Combine(Path.GetTempPath(), $"update_{newVersion}.zip");
+            string tempFile = Path.Combine(Application.StartupPath, $"update.zip");
 
             using (HttpClient client = new HttpClient())
             {
