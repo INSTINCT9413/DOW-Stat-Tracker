@@ -81,7 +81,7 @@ The app includes a **custom WH40k-themed rank system** based on player XP:
 
 ## 📌 Roadmap
 
-- [ ] Add support for **team games (2v2, 3v3, 4v4)**  
+- [ ] Add support for **team games (2v2✔️, 3v3, 4v4)**  
 - [ ] Export stats to **CSV/Excel**  
 - [ ] More detailed **match history breakdowns**  
 - [ ] Improved **UI theming**  
