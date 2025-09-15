@@ -11,6 +11,7 @@ Built in **C# WinForms**, this app fetches data from the official Relic API and 
 
 ---
 <img src="https://raw.githubusercontent.com/INSTINCT9413/DOW-Stat-Tracker/master/DOW%20Stat%20Tracker/Resources/capsule_616x353.jpg" alt="Background">
+
 ---
 
 ## ✨ Features  
