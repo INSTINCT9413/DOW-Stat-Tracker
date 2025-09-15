@@ -10,7 +10,7 @@ A **desktop application** for tracking [**Warhammer 40,000: Dawn of War - Defini
 Built in **C# WinForms**, this app fetches data from the official Relic API and presents it in a clean, modern UI with advanced features like race-specific stats, favorite race detection, and leaderboard tracking.
 
 ---
-<img src="https://raw.githubusercontent.com/INSTINCT9413/DOW-Stat-Tracker/master/DOW%20Stat%20Tracker/Resources/capsule_616x353.jpg" alt="Background">
+<img align="center" src="https://raw.githubusercontent.com/INSTINCT9413/DOW-Stat-Tracker/master/DOW%20Stat%20Tracker/Resources/capsule_616x353.jpg" alt="Background">
 
 ---
 
