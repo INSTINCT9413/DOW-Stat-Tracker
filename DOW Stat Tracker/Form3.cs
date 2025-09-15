@@ -19,7 +19,7 @@ namespace DOW_Stat_Tracker
 {
     public partial class Form3 : Form
     {
-        string updater = Application.StartupPath + "updater.exe";
+        readonly string updater = Application.StartupPath + "updater.exe";
         public Form3()
         {
             InitializeComponent();
