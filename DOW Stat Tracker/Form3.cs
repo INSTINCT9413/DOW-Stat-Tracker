@@ -113,11 +113,11 @@ namespace DOW_Stat_Tracker
             //Console.WriteLine("Download complete. Launching updater...");
 
             // Launch the downloaded EXE
-            ProcessStartInfo psi = new ProcessStartInfo
-            {
-                FileName = tempFile,
-                UseShellExecute = true // ensures it opens like a normal app
-            };
+            //ProcessStartInfo psi = new ProcessStartInfo
+            //{
+            //    FileName = tempFile,
+            //    UseShellExecute = true // ensures it opens like a normal app
+            //};
 
             //Process.Start(psi);
 
@@ -160,6 +160,7 @@ namespace DOW_Stat_Tracker
 
                     if (result == DialogResult.Yes)
                     {
+
                         Properties.Settings.Default.UpgradeRequired = true;
                         Properties.Settings.Default.Save();
                         await DownloadAndUpdate(downloadUrl, latestVersion);
@@ -175,9 +176,14 @@ namespace DOW_Stat_Tracker
 
         private async Task DownloadAndUpdate(string downloadUrl, string newVersion)
         {
-            // Temp zip location
-            string tempFile = Path.Combine(Application.StartupPath, $"update.zip");
+            string updateDir = Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+                "DOWStatTracker", "Updates");
+            Directory.CreateDirectory(updateDir);
 
+            string tempFile = Path.Combine(updateDir, "update.zip");
+
+            // Download file
             using (HttpClient client = new HttpClient())
             {
                 var response = await client.GetAsync(downloadUrl, HttpCompletionOption.ResponseHeadersRead);
@@ -190,30 +196,37 @@ namespace DOW_Stat_Tracker
                 }
             }
 
-            MessageBox.Show($"Update {newVersion} has been downloaded to:\n{tempFile}\n\nThe updater will now launch.",
-                "Download Complete", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            // Prompt user (no auto-execution)
+            DialogResult runUpdater = MessageBox.Show(
+                $"Update {newVersion} downloaded successfully to:\n{tempFile}\n\n" +
+                "Do you want to run the updater now?",
+                "Update Ready",
+                MessageBoxButtons.YesNo,
+                MessageBoxIcon.Question);
 
-            // Path to your extractor app
-            string extractorPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "INSTINCT Extractor.exe");
-
-            if (File.Exists(extractorPath))
+            if (runUpdater == DialogResult.Yes)
             {
-                // Launch extractor and pass the downloaded zip as an argument
-                Process.Start(new ProcessStartInfo
+                string extractorPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "INSTINCT Extractor.exe");
+
+                if (File.Exists(extractorPath))
                 {
-                    FileName = extractorPath,
-                    Arguments = $"\"{tempFile}\"", // Pass zip path
-                    UseShellExecute = true
-                });
+                    Process.Start(new ProcessStartInfo
+                    {
+                        FileName = extractorPath,
+                        Arguments = $"\"{tempFile}\"",
+                        UseShellExecute = true
+                    });
 
-                // Exit the current app so the extractor can replace files
-                Application.Exit();
-            }
-            else
-            {
-                MessageBox.Show("Extractor app not found!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    Application.Exit();
+                }
+                else
+                {
+                    MessageBox.Show("Extractor app not found!", "Error",
+                        MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
             }
         }
+
 
 
         private void numericUpDown1_ValueChanged(object sender, EventArgs e)

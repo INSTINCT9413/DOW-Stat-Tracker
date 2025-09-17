@@ -13,7 +13,13 @@ namespace INSTINCT_Extractor
         {
             try
             {
-                string archivePath = "update.zip";          // your downloaded update
+                string updateDir = Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+                "DOWStatTracker", "Updates");
+                Directory.CreateDirectory(updateDir);
+
+                string archivePath = Path.Combine(updateDir, "update.zip");
+                       // your downloaded update
                 string extractPath = AppDomain.CurrentDomain.BaseDirectory; // current folder
                 string mainExe = "DOW Stat Tracker.exe";    // program to launch
                                                             // Force close the main app if it's running

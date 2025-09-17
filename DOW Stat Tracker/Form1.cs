@@ -4,6 +4,7 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Configuration;
 using System.Data;
 using System.Diagnostics;
 using System.Drawing;
@@ -186,142 +187,145 @@ namespace DOW_Stat_Tracker
         private async void btnLoadJson_Click(object sender, EventArgs e)
         {
 
-            panel4v40.Bounds = this.ClientRectangle;
-            panel4v40.Visible = true;
-            pictureBox1.Visible = true;
-
-
-            try
+            if(!string.IsNullOrEmpty(txtUsername.Text))
             {
-                string username = txtUsername.Text.Trim();
-                if (string.IsNullOrWhiteSpace(username))
+                panel4v40.Bounds = this.ClientRectangle;
+                panel4v40.Visible = true;
+                pictureBox1.Visible = true;
+
+
+                try
                 {
-                    panel4v40.Visible = false;
-                    MessageBox.Show("Please enter a username first.", "Error",
-                        MessageBoxButtons.OK, MessageBoxIcon.Warning);
-
-                    return;
-                }
-
-                // Save username in settings
-                var settings = Properties.Settings.Default;
-                typeof(Settings).GetProperty("LastUsername")?.SetValue(settings, username);
-                settings.Save();
-                await LoadPersonalStats(username);
-                string getRecentMatches = $"https://dow-api.reliclink.com/community/leaderboard/getRecentMatchHistory?title=dow1-de&aliases=[{username}]";
-                using (HttpClient client = new HttpClient())
-                {
-                    string json = await client.GetStringAsync(getRecentMatches);
-                    data = JsonConvert.DeserializeObject<Root>(json);
-
-                    if (data == null || data.matchHistoryStats == null || !data.matchHistoryStats.Any())
+                    string username = txtUsername.Text.Trim();
+                    if (string.IsNullOrWhiteSpace(username))
                     {
                         panel4v40.Visible = false;
-                        MessageBox.Show("No data found for this player.", "Info",
-                            MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        MessageBox.Show("Please enter a username first.", "Error",
+                            MessageBoxButtons.OK, MessageBoxIcon.Warning);
+
                         return;
                     }
 
-                    // ✅ Only take automatched games
-                    var automatches = data.matchHistoryStats
-                        .Where(m => !string.IsNullOrEmpty(m.description) &&
-                m.description.ToUpper().Contains("AUTOMATCH"))
-                        .ToList();
-
-                    if (!automatches.Any())
+                    // Save username in settings
+                    var settings = Properties.Settings.Default;
+                    typeof(Settings).GetProperty("LastUsername")?.SetValue(settings, username);
+                    settings.Save();
+                    await LoadPersonalStats(username);
+                    string getRecentMatches = $"https://dow-api.reliclink.com/community/leaderboard/getRecentMatchHistory?title=dow1-de&aliases=[{username}]";
+                    using (HttpClient client = new HttpClient())
                     {
-                        panel4v40.Visible = false;
-                        MessageBox.Show("No automatched games found for this player.", "Info",
-                            MessageBoxButtons.OK, MessageBoxIcon.Information);
-                        return;
-                    }
+                        string json = await client.GetStringAsync(getRecentMatches);
+                        data = JsonConvert.DeserializeObject<Root>(json);
 
-                    // Flatten all match members
-                    var players = automatches
-                        .SelectMany(m => m.matchhistorymember)
-                        .Select(p => new
+                        if (data == null || data.matchHistoryStats == null || !data.matchHistoryStats.Any())
                         {
-                            p.profile_id,
-                            Race = Races.ContainsKey(p.race_id) ? Races[p.race_id] : $"Unknown ({p.race_id})",
-                            p.teamid,
-                            p.wins,
-                            p.losses,
-                            Outcome = p.outcome == 1 ? "Win" : "Loss",
-                            p.newrating,
-                            p.oldrating
-                        })
-                        .ToList();
+                            panel4v40.Visible = false;
+                            MessageBox.Show("No data found for this player.", "Info",
+                                MessageBoxButtons.OK, MessageBoxIcon.Information);
+                            return;
+                        }
 
-                    dgvProfiles.DataSource = players;
-                    label124.Text = $"Found {dgvProfiles.RowCount} games that were automatched (Work in progress)";
-                    label125.Text = $"Breakdown of {dgvProfiles.RowCount} games played (Work in progress)";
-                    // Compute race breakdown
-                    var raceBreakdown = players
-                        .GroupBy(p => p.Race)
-                        .Select(g => new
+                        // ✅ Only take automatched games
+                        var automatches = data.matchHistoryStats
+                            .Where(m => !string.IsNullOrEmpty(m.description) &&
+                    m.description.ToUpper().Contains("AUTOMATCH"))
+                            .ToList();
+
+                        if (!automatches.Any())
                         {
-                            Race = g.Key,
-                            Wins = g.Count(x => x.Outcome == "Win"),
-                            Losses = g.Count(x => x.Outcome == "Loss"),
-                            WinRate = g.Any() ? (g.Count(x => x.Outcome == "Win") * 100.0 / g.Count()).ToString("F1") + "%" : "0%"
-                        })
-                        .OrderByDescending(x => x.Wins + x.Losses)
-                        .ToList();
+                            panel4v40.Visible = false;
+                            MessageBox.Show("No automatched games found for this player.", "Info",
+                                MessageBoxButtons.OK, MessageBoxIcon.Information);
+                            return;
+                        }
 
-                    dgvRaces.DataSource = raceBreakdown;
-
-                    // Build per-race stats only from automatches
-                    var raceStats = new Dictionary<int, (int wins, int losses)>();
-                    foreach (var match in automatches)
-                    {
-                        foreach (var member in match.matchhistorymember)
-                        {
-                            if (member.profile_id == profileId)
+                        // Flatten all match members
+                        var players = automatches
+                            .SelectMany(m => m.matchhistorymember)
+                            .Select(p => new
                             {
-                                if (!raceStats.ContainsKey(member.race_id))
-                                    raceStats[member.race_id] = (0, 0);
+                                p.profile_id,
+                                Race = Races.ContainsKey(p.race_id) ? Races[p.race_id] : $"Unknown ({p.race_id})",
+                                p.teamid,
+                                p.wins,
+                                p.losses,
+                                Outcome = p.outcome == 1 ? "Win" : "Loss",
+                                p.newrating,
+                                p.oldrating
+                            })
+                            .ToList();
 
-                                if (member.outcome == 1)
-                                    raceStats[member.race_id] = (raceStats[member.race_id].wins + 1, raceStats[member.race_id].losses);
-                                else
-                                    raceStats[member.race_id] = (raceStats[member.race_id].wins, raceStats[member.race_id].losses + 1);
+                        dgvProfiles.DataSource = players;
+                        label124.Text = $"Found {dgvProfiles.RowCount} games that were automatched (Work in progress)";
+                        label125.Text = $"Breakdown of {dgvProfiles.RowCount} games played (Work in progress)";
+                        // Compute race breakdown
+                        var raceBreakdown = players
+                            .GroupBy(p => p.Race)
+                            .Select(g => new
+                            {
+                                Race = g.Key,
+                                Wins = g.Count(x => x.Outcome == "Win"),
+                                Losses = g.Count(x => x.Outcome == "Loss"),
+                                WinRate = g.Any() ? (g.Count(x => x.Outcome == "Win") * 100.0 / g.Count()).ToString("F1") + "%" : "0%"
+                            })
+                            .OrderByDescending(x => x.Wins + x.Losses)
+                            .ToList();
+
+                        dgvRaces.DataSource = raceBreakdown;
+
+                        // Build per-race stats only from automatches
+                        var raceStats = new Dictionary<int, (int wins, int losses)>();
+                        foreach (var match in automatches)
+                        {
+                            foreach (var member in match.matchhistorymember)
+                            {
+                                if (member.profile_id == profileId)
+                                {
+                                    if (!raceStats.ContainsKey(member.race_id))
+                                        raceStats[member.race_id] = (0, 0);
+
+                                    if (member.outcome == 1)
+                                        raceStats[member.race_id] = (raceStats[member.race_id].wins + 1, raceStats[member.race_id].losses);
+                                    else
+                                        raceStats[member.race_id] = (raceStats[member.race_id].wins, raceStats[member.race_id].losses + 1);
+                                }
                             }
                         }
+
+                        var raceResults = raceStats.Select(r => new
+                        {
+                            Race = Races.ContainsKey(r.Key) ? Races[r.Key] : $"Unknown ({r.Key})",
+                            Wins = r.Value.wins,
+                            Losses = r.Value.losses,
+                            WinRate = (r.Value.wins + r.Value.losses) > 0
+                                ? (r.Value.wins * 100.0 / (r.Value.wins + r.Value.losses)).ToString("F1") + "%"
+                                : "0%"
+                        }).ToList();
+
+                        dataGridView1.DataSource = raceResults;
+
+                        // Profile summary (only automatch totals)
+                        int totalWins = raceStats.Sum(r => r.Value.wins);
+                        int totalLosses = raceStats.Sum(r => r.Value.losses);
+                        double overallWR = (totalWins + totalLosses) > 0 ? totalWins * 100.0 / (totalWins + totalLosses) : 0;
+                        Username.Text = "Alias: " + txtUsername.Text.Trim() + "\n\rID: " + profileId;
+                        //Wins.Text = "Wins: " + totalWins.ToString();
+                        //Losses.Text = "Losses: " + totalLosses.ToString();
+                        //Overall.Text = "Winrate: " + overallWR.ToString("F1") + "%";
                     }
 
-                    var raceResults = raceStats.Select(r => new
-                    {
-                        Race = Races.ContainsKey(r.Key) ? Races[r.Key] : $"Unknown ({r.Key})",
-                        Wins = r.Value.wins,
-                        Losses = r.Value.losses,
-                        WinRate = (r.Value.wins + r.Value.losses) > 0
-                            ? (r.Value.wins * 100.0 / (r.Value.wins + r.Value.losses)).ToString("F1") + "%"
-                            : "0%"
-                    }).ToList();
-
-                    dataGridView1.DataSource = raceResults;
-
-                    // Profile summary (only automatch totals)
-                    int totalWins = raceStats.Sum(r => r.Value.wins);
-                    int totalLosses = raceStats.Sum(r => r.Value.losses);
-                    double overallWR = (totalWins + totalLosses) > 0 ? totalWins * 100.0 / (totalWins + totalLosses) : 0;
-                    Username.Text = "Alias: " + txtUsername.Text.Trim() + "\n\rID: " + profileId;
-                    //Wins.Text = "Wins: " + totalWins.ToString();
-                    //Losses.Text = "Losses: " + totalLosses.ToString();
-                    //Overall.Text = "Winrate: " + overallWR.ToString("F1") + "%";
+                    pictureBox1.Visible = false;
+                }
+                catch (Exception ex)
+                {
+                    panel4v40.Visible = false;
+                    MessageBox.Show($"Error fetching data: {ex.Message}", "Error",
+                        MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
 
-                pictureBox1.Visible = false;
-            }
-            catch (Exception ex)
-            {
+                PopulateMainTab();
                 panel4v40.Visible = false;
-                MessageBox.Show($"Error fetching data: {ex.Message}", "Error",
-                    MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
-
-            PopulateMainTab();
-            panel4v40.Visible = false;
             //panel1.SendToBack();
         }
         public string GetRankName(int xp)
@@ -2644,11 +2648,42 @@ namespace DOW_Stat_Tracker
 
         private async void Form1_Load(object sender, EventArgs e)
         {
-            if (Properties.Settings.Default.UpgradeRequired)
+            try
             {
-                Properties.Settings.Default.Upgrade();
-                Properties.Settings.Default.UpgradeRequired = false;
-                Properties.Settings.Default.Save();
+                // Try to upgrade user settings if needed
+                if (Properties.Settings.Default.UpgradeRequired)
+                {
+                    Properties.Settings.Default.Upgrade();
+                    Properties.Settings.Default.UpgradeRequired = false;
+                    Properties.Settings.Default.Save();
+                }
+            }
+            catch (ConfigurationErrorsException ex)
+            {
+                // The user.config file is probably corrupted
+                string filename = (ex.Filename ?? "user.config");
+
+                MessageBox.Show(
+                    "Your settings file was corrupted and will be reset.\n\n" +
+                    $"File: {filename}",
+                    "Settings Reset",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Warning
+                );
+
+                try
+                {
+                    // Delete the corrupted config file so .NET regenerates it
+                    System.IO.File.Delete(filename);
+                }
+                catch
+                {
+                    // Ignore errors deleting the file
+                }
+
+                // Reset to defaults
+                Properties.Settings.Default.Reset();
+                Properties.Settings.Default.Reload();
             }
 
             this.Text = "DOW Stat Tracker by INSTINCT";
