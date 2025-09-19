@@ -47,7 +47,7 @@ Built in **C# WinForms**, this app fetches data from the official Relic API and 
    - **Profile Summary** → Favorite race, best win rate, top rating.  
    - **Recent Matches** → Automatched games list.  
    - **Race Stats** → Detailed per-race stats.  
-   - **Community** → Contaions all global ranking with XP progress bars.  
+   - **Community** → 1v1, 2v2, 3v3, Top 100 Players Leaderboards.  
 3. Configure auto-refresh and preferences in **Settings**.
 
 ---
