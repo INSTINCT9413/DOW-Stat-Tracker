@@ -10,17 +10,19 @@ using System.Windows.Forms;
 
 namespace DOW_Stat_Tracker
 {
-    public partial class Form2 : Form
+    public partial class ChangelogForm : Form
     {
-        public Form2()
+        public ChangelogForm()
         {
             InitializeComponent();
         }
-
-        private void Form2_Load(object sender, EventArgs e)
+        public void SetChangelogText(string text)
         {
-            this.ActiveControl = null;
-            this.Icon = Properties.Resources.info1;
+            richTextBox1.Text = text;
+        }
+        private void ChangelogForm_Load(object sender, EventArgs e)
+        {
+
         }
     }
 }

@@ -1,6 +1,6 @@
 ﻿namespace DOW_Stat_Tracker
 {
-    partial class Form1
+    partial class MainForm
     {
         /// <summary>
         /// Required designer variable.
@@ -29,7 +29,7 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form1));
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
             this.dataGridView1 = new System.Windows.Forms.DataGridView();
             this.btnLoadJson = new System.Windows.Forms.Button();
             this.btnShowProfile = new System.Windows.Forms.Button();
@@ -216,26 +216,28 @@
             this.label133 = new System.Windows.Forms.Label();
             this.lblFavoriteRecRace = new System.Windows.Forms.Label();
             this.label129 = new System.Windows.Forms.Label();
+            this.lblBestRaceRating = new System.Windows.Forms.Label();
             this.Wins = new System.Windows.Forms.Label();
             this.lblFavoriteRace = new System.Windows.Forms.Label();
             this.lblBestRaceWinRate = new System.Windows.Forms.Label();
             this.Overall = new System.Windows.Forms.Label();
             this.Losses = new System.Windows.Forms.Label();
+            this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.linkLabel1 = new System.Windows.Forms.LinkLabel();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
             this.pictureBox13 = new System.Windows.Forms.PictureBox();
             this.pictureBox12 = new System.Windows.Forms.PictureBox();
             this.label122 = new System.Windows.Forms.Label();
             this.label123 = new System.Windows.Forms.Label();
             this.progressBar1 = new System.Windows.Forms.ProgressBar();
-            this.groupBox1 = new System.Windows.Forms.GroupBox();
-            this.linkLabel1 = new System.Windows.Forms.LinkLabel();
             this.pictureBox11 = new System.Windows.Forms.PictureBox();
             this.Username = new System.Windows.Forms.Label();
             this.label119 = new System.Windows.Forms.Label();
             this.label120 = new System.Windows.Forms.Label();
             this.label121 = new System.Windows.Forms.Label();
-            this.lblBestRaceRating = new System.Windows.Forms.Label();
             this.tabPage11 = new System.Windows.Forms.TabPage();
+            this.tabControl4 = new System.Windows.Forms.TabControl();
+            this.tabPage17 = new System.Windows.Forms.TabPage();
             this.tabControl3 = new System.Windows.Forms.TabControl();
             this.tabPage14 = new System.Windows.Forms.TabPage();
             this.button4 = new System.Windows.Forms.Button();
@@ -261,25 +263,7 @@
             this.button3 = new System.Windows.Forms.Button();
             this.label132 = new System.Windows.Forms.Label();
             this.dg3v3 = new System.Windows.Forms.DataGridView();
-            this.label118 = new System.Windows.Forms.Label();
-            this.pictureBox14 = new System.Windows.Forms.PictureBox();
-            this.label126 = new System.Windows.Forms.Label();
-            this.label127 = new System.Windows.Forms.Label();
-            this.label128 = new System.Windows.Forms.Label();
-            this.pictureBox15 = new System.Windows.Forms.PictureBox();
-            this.timer1 = new System.Windows.Forms.Timer(this.components);
-            this.panel4v40 = new System.Windows.Forms.Panel();
-            this.pictureBox19 = new System.Windows.Forms.PictureBox();
-            this.tabControl4 = new System.Windows.Forms.TabControl();
-            this.tabPage17 = new System.Windows.Forms.TabPage();
-            this.tabPage19 = new System.Windows.Forms.TabPage();
-            this.tabPage20 = new System.Windows.Forms.TabPage();
             this.tabPage21 = new System.Windows.Forms.TabPage();
-            this.tabPage22 = new System.Windows.Forms.TabPage();
-            this.tabPage23 = new System.Windows.Forms.TabPage();
-            this.tabPage24 = new System.Windows.Forms.TabPage();
-            this.tabPage25 = new System.Windows.Forms.TabPage();
-            this.tabPage26 = new System.Windows.Forms.TabPage();
             this.button7 = new System.Windows.Forms.Button();
             this.textBox4 = new System.Windows.Forms.TextBox();
             this.panel4v4 = new System.Windows.Forms.Panel();
@@ -287,6 +271,7 @@
             this.button8 = new System.Windows.Forms.Button();
             this.dg4v4 = new System.Windows.Forms.DataGridView();
             this.label161 = new System.Windows.Forms.Label();
+            this.tabPage22 = new System.Windows.Forms.TabPage();
             this.button9 = new System.Windows.Forms.Button();
             this.textBox5 = new System.Windows.Forms.TextBox();
             this.panel5v5 = new System.Windows.Forms.Panel();
@@ -294,6 +279,7 @@
             this.button10 = new System.Windows.Forms.Button();
             this.dg5v5 = new System.Windows.Forms.DataGridView();
             this.label162 = new System.Windows.Forms.Label();
+            this.tabPage23 = new System.Windows.Forms.TabPage();
             this.button11 = new System.Windows.Forms.Button();
             this.textBox6 = new System.Windows.Forms.TextBox();
             this.panel6v6 = new System.Windows.Forms.Panel();
@@ -301,6 +287,7 @@
             this.button12 = new System.Windows.Forms.Button();
             this.dg6v6 = new System.Windows.Forms.DataGridView();
             this.label163 = new System.Windows.Forms.Label();
+            this.tabPage24 = new System.Windows.Forms.TabPage();
             this.button13 = new System.Windows.Forms.Button();
             this.textBox7 = new System.Windows.Forms.TextBox();
             this.panel7v7 = new System.Windows.Forms.Panel();
@@ -308,6 +295,7 @@
             this.button14 = new System.Windows.Forms.Button();
             this.dg7v7 = new System.Windows.Forms.DataGridView();
             this.label164 = new System.Windows.Forms.Label();
+            this.tabPage25 = new System.Windows.Forms.TabPage();
             this.button15 = new System.Windows.Forms.Button();
             this.textBox8 = new System.Windows.Forms.TextBox();
             this.panel8v8 = new System.Windows.Forms.Panel();
@@ -315,6 +303,7 @@
             this.button16 = new System.Windows.Forms.Button();
             this.dg8v8 = new System.Windows.Forms.DataGridView();
             this.label165 = new System.Windows.Forms.Label();
+            this.tabPage26 = new System.Windows.Forms.TabPage();
             this.button17 = new System.Windows.Forms.Button();
             this.textBox9 = new System.Windows.Forms.TextBox();
             this.panel9v9 = new System.Windows.Forms.Panel();
@@ -322,10 +311,6 @@
             this.button18 = new System.Windows.Forms.Button();
             this.dg9v9 = new System.Windows.Forms.DataGridView();
             this.label166 = new System.Windows.Forms.Label();
-            this.tabPage27 = new System.Windows.Forms.TabPage();
-            this.label168 = new System.Windows.Forms.Label();
-            this.label169 = new System.Windows.Forms.Label();
-            this.button19 = new System.Windows.Forms.Button();
             this.tabPage18 = new System.Windows.Forms.TabPage();
             this.tabConrol001 = new System.Windows.Forms.TabControl();
             this.tabPage28 = new System.Windows.Forms.TabPage();
@@ -400,8 +385,24 @@
             this.button37 = new System.Windows.Forms.Button();
             this.tau2v2 = new System.Windows.Forms.DataGridView();
             this.label178 = new System.Windows.Forms.Label();
-            this.rootBindingSource = new System.Windows.Forms.BindingSource(this.components);
+            this.tabPage19 = new System.Windows.Forms.TabPage();
+            this.label168 = new System.Windows.Forms.Label();
+            this.tabPage20 = new System.Windows.Forms.TabPage();
+            this.label169 = new System.Windows.Forms.Label();
+            this.tabPage27 = new System.Windows.Forms.TabPage();
             this.top100Players = new System.Windows.Forms.DataGridView();
+            this.label118 = new System.Windows.Forms.Label();
+            this.pictureBox14 = new System.Windows.Forms.PictureBox();
+            this.label126 = new System.Windows.Forms.Label();
+            this.label127 = new System.Windows.Forms.Label();
+            this.label128 = new System.Windows.Forms.Label();
+            this.pictureBox15 = new System.Windows.Forms.PictureBox();
+            this.timer1 = new System.Windows.Forms.Timer(this.components);
+            this.panel4v40 = new System.Windows.Forms.Panel();
+            this.pictureBox19 = new System.Windows.Forms.PictureBox();
+            this.button19 = new System.Windows.Forms.Button();
+            this.rootBindingSource = new System.Windows.Forms.BindingSource(this.components);
+            this.label170 = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.matchHistoryStatsBindingSource)).BeginInit();
@@ -438,12 +439,14 @@
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.groupBox3.SuspendLayout();
+            this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox13)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox12)).BeginInit();
-            this.groupBox1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox11)).BeginInit();
             this.tabPage11.SuspendLayout();
+            this.tabControl4.SuspendLayout();
+            this.tabPage17.SuspendLayout();
             this.tabControl3.SuspendLayout();
             this.tabPage14.SuspendLayout();
             this.panel1v1.SuspendLayout();
@@ -457,39 +460,30 @@
             this.panel3v3.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox16)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.dg3v3)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox14)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox15)).BeginInit();
-            this.panel4v40.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox19)).BeginInit();
-            this.tabControl4.SuspendLayout();
-            this.tabPage17.SuspendLayout();
-            this.tabPage19.SuspendLayout();
-            this.tabPage20.SuspendLayout();
             this.tabPage21.SuspendLayout();
-            this.tabPage22.SuspendLayout();
-            this.tabPage23.SuspendLayout();
-            this.tabPage24.SuspendLayout();
-            this.tabPage25.SuspendLayout();
-            this.tabPage26.SuspendLayout();
             this.panel4v4.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox20)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.dg4v4)).BeginInit();
+            this.tabPage22.SuspendLayout();
             this.panel5v5.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox21)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.dg5v5)).BeginInit();
+            this.tabPage23.SuspendLayout();
             this.panel6v6.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox22)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.dg6v6)).BeginInit();
+            this.tabPage24.SuspendLayout();
             this.panel7v7.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox23)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.dg7v7)).BeginInit();
+            this.tabPage25.SuspendLayout();
             this.panel8v8.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox24)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.dg8v8)).BeginInit();
+            this.tabPage26.SuspendLayout();
             this.panel9v9.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox25)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.dg9v9)).BeginInit();
-            this.tabPage27.SuspendLayout();
             this.tabPage18.SuspendLayout();
             this.tabConrol001.SuspendLayout();
             this.tabPage28.SuspendLayout();
@@ -528,8 +522,15 @@
             this.panel9.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox34)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.tau2v2)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.rootBindingSource)).BeginInit();
+            this.tabPage19.SuspendLayout();
+            this.tabPage20.SuspendLayout();
+            this.tabPage27.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.top100Players)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox14)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox15)).BeginInit();
+            this.panel4v40.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox19)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.rootBindingSource)).BeginInit();
             this.SuspendLayout();
             // 
             // dataGridView1
@@ -602,7 +603,7 @@
             // 
             // rootBindingSource1
             // 
-            this.rootBindingSource1.DataSource = typeof(DOW_Stat_Tracker.Form1.Root);
+            this.rootBindingSource1.DataSource = typeof(DOW_Stat_Tracker.MainForm.Root);
             // 
             // tabPage3
             // 
@@ -2416,6 +2417,7 @@
             this.splitContainer1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.splitContainer1.Location = new System.Drawing.Point(3, 3);
             this.splitContainer1.Name = "splitContainer1";
+            this.splitContainer1.Orientation = System.Windows.Forms.Orientation.Horizontal;
             // 
             // splitContainer1.Panel1
             // 
@@ -2424,10 +2426,11 @@
             // 
             // splitContainer1.Panel2
             // 
+            this.splitContainer1.Panel2.Controls.Add(this.label170);
             this.splitContainer1.Panel2.Controls.Add(this.label125);
             this.splitContainer1.Panel2.Controls.Add(this.dgvRaces);
             this.splitContainer1.Size = new System.Drawing.Size(1254, 592);
-            this.splitContainer1.SplitterDistance = 790;
+            this.splitContainer1.SplitterDistance = 388;
             this.splitContainer1.TabIndex = 0;
             // 
             // label124
@@ -2445,9 +2448,9 @@
             this.dgvProfiles.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.AllCells;
             this.dgvProfiles.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.dgvProfiles.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.dgvProfiles.Location = new System.Drawing.Point(0, 30);
+            this.dgvProfiles.Location = new System.Drawing.Point(0, 33);
             this.dgvProfiles.Name = "dgvProfiles";
-            this.dgvProfiles.Size = new System.Drawing.Size(790, 562);
+            this.dgvProfiles.Size = new System.Drawing.Size(1254, 355);
             this.dgvProfiles.TabIndex = 4;
             // 
             // label125
@@ -2464,10 +2467,9 @@
             // 
             this.dgvRaces.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.AllCells;
             this.dgvRaces.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.dgvRaces.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.dgvRaces.Location = new System.Drawing.Point(0, 30);
+            this.dgvRaces.Location = new System.Drawing.Point(0, 32);
             this.dgvRaces.Name = "dgvRaces";
-            this.dgvRaces.Size = new System.Drawing.Size(460, 562);
+            this.dgvRaces.Size = new System.Drawing.Size(296, 171);
             this.dgvRaces.TabIndex = 5;
             // 
             // tabControl1
@@ -2545,6 +2547,16 @@
             this.label129.Text = "N/A Search for a player";
             this.label129.Click += new System.EventHandler(this.label129_Click);
             // 
+            // lblBestRaceRating
+            // 
+            this.lblBestRaceRating.AutoSize = true;
+            this.lblBestRaceRating.Font = new System.Drawing.Font("Segoe UI Light", 18F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblBestRaceRating.Location = new System.Drawing.Point(17, 274);
+            this.lblBestRaceRating.Name = "lblBestRaceRating";
+            this.lblBestRaceRating.Size = new System.Drawing.Size(55, 32);
+            this.lblBestRaceRating.TabIndex = 2;
+            this.lblBestRaceRating.Text = "N/A";
+            // 
             // Wins
             // 
             this.Wins.AutoSize = true;
@@ -2594,6 +2606,35 @@
             this.Losses.Size = new System.Drawing.Size(252, 32);
             this.Losses.TabIndex = 7;
             this.Losses.Text = "N/A Search for a player";
+            // 
+            // groupBox1
+            // 
+            this.groupBox1.Controls.Add(this.linkLabel1);
+            this.groupBox1.Controls.Add(this.groupBox2);
+            this.groupBox1.Controls.Add(this.pictureBox11);
+            this.groupBox1.Controls.Add(this.Username);
+            this.groupBox1.Controls.Add(this.label119);
+            this.groupBox1.Controls.Add(this.label120);
+            this.groupBox1.Controls.Add(this.label121);
+            this.groupBox1.Font = new System.Drawing.Font("Segoe UI Light", 20.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.groupBox1.Location = new System.Drawing.Point(15, 10);
+            this.groupBox1.Name = "groupBox1";
+            this.groupBox1.Size = new System.Drawing.Size(507, 407);
+            this.groupBox1.TabIndex = 16;
+            this.groupBox1.TabStop = false;
+            this.groupBox1.Text = "Player Information";
+            // 
+            // linkLabel1
+            // 
+            this.linkLabel1.AutoSize = true;
+            this.linkLabel1.Font = new System.Drawing.Font("Segoe UI Light", 8F);
+            this.linkLabel1.Location = new System.Drawing.Point(14, 225);
+            this.linkLabel1.Name = "linkLabel1";
+            this.linkLabel1.Size = new System.Drawing.Size(188, 13);
+            this.linkLabel1.TabIndex = 12;
+            this.linkLabel1.TabStop = true;
+            this.linkLabel1.Text = "Visit Steam Profile (Click Image or here)";
+            this.linkLabel1.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.linkLabel1_LinkClicked);
             // 
             // groupBox2
             // 
@@ -2659,35 +2700,6 @@
             this.progressBar1.Size = new System.Drawing.Size(352, 11);
             this.progressBar1.TabIndex = 14;
             // 
-            // groupBox1
-            // 
-            this.groupBox1.Controls.Add(this.linkLabel1);
-            this.groupBox1.Controls.Add(this.groupBox2);
-            this.groupBox1.Controls.Add(this.pictureBox11);
-            this.groupBox1.Controls.Add(this.Username);
-            this.groupBox1.Controls.Add(this.label119);
-            this.groupBox1.Controls.Add(this.label120);
-            this.groupBox1.Controls.Add(this.label121);
-            this.groupBox1.Font = new System.Drawing.Font("Segoe UI Light", 20.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.groupBox1.Location = new System.Drawing.Point(15, 10);
-            this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(507, 407);
-            this.groupBox1.TabIndex = 16;
-            this.groupBox1.TabStop = false;
-            this.groupBox1.Text = "Player Information";
-            // 
-            // linkLabel1
-            // 
-            this.linkLabel1.AutoSize = true;
-            this.linkLabel1.Font = new System.Drawing.Font("Segoe UI Light", 8F);
-            this.linkLabel1.Location = new System.Drawing.Point(14, 225);
-            this.linkLabel1.Name = "linkLabel1";
-            this.linkLabel1.Size = new System.Drawing.Size(188, 13);
-            this.linkLabel1.TabIndex = 12;
-            this.linkLabel1.TabStop = true;
-            this.linkLabel1.Text = "Visit Steam Profile (Click Image or here)";
-            this.linkLabel1.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.linkLabel1_LinkClicked);
-            // 
             // pictureBox11
             // 
             this.pictureBox11.Cursor = System.Windows.Forms.Cursors.Hand;
@@ -2741,16 +2753,6 @@
             this.label121.TabIndex = 11;
             this.label121.Text = "N/A Search for a player";
             // 
-            // lblBestRaceRating
-            // 
-            this.lblBestRaceRating.AutoSize = true;
-            this.lblBestRaceRating.Font = new System.Drawing.Font("Segoe UI Light", 18F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblBestRaceRating.Location = new System.Drawing.Point(17, 274);
-            this.lblBestRaceRating.Name = "lblBestRaceRating";
-            this.lblBestRaceRating.Size = new System.Drawing.Size(55, 32);
-            this.lblBestRaceRating.TabIndex = 2;
-            this.lblBestRaceRating.Text = "N/A";
-            // 
             // tabPage11
             // 
             this.tabPage11.BackColor = System.Drawing.Color.Transparent;
@@ -2761,6 +2763,31 @@
             this.tabPage11.Size = new System.Drawing.Size(1260, 598);
             this.tabPage11.TabIndex = 3;
             this.tabPage11.Text = "Community";
+            // 
+            // tabControl4
+            // 
+            this.tabControl4.Controls.Add(this.tabPage17);
+            this.tabControl4.Controls.Add(this.tabPage18);
+            this.tabControl4.Controls.Add(this.tabPage19);
+            this.tabControl4.Controls.Add(this.tabPage20);
+            this.tabControl4.Controls.Add(this.tabPage27);
+            this.tabControl4.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tabControl4.Location = new System.Drawing.Point(3, 3);
+            this.tabControl4.Name = "tabControl4";
+            this.tabControl4.SelectedIndex = 0;
+            this.tabControl4.Size = new System.Drawing.Size(1254, 592);
+            this.tabControl4.TabIndex = 9;
+            // 
+            // tabPage17
+            // 
+            this.tabPage17.Controls.Add(this.tabControl3);
+            this.tabPage17.Location = new System.Drawing.Point(4, 22);
+            this.tabPage17.Name = "tabPage17";
+            this.tabPage17.Padding = new System.Windows.Forms.Padding(3);
+            this.tabPage17.Size = new System.Drawing.Size(1246, 566);
+            this.tabPage17.TabIndex = 0;
+            this.tabPage17.Text = "1v1 Ladders";
+            this.tabPage17.UseVisualStyleBackColor = true;
             // 
             // tabControl3
             // 
@@ -3035,138 +3062,6 @@
             this.dg3v3.Size = new System.Drawing.Size(1232, 499);
             this.dg3v3.TabIndex = 1;
             // 
-            // label118
-            // 
-            this.label118.AutoSize = true;
-            this.label118.Location = new System.Drawing.Point(76, 39);
-            this.label118.Name = "label118";
-            this.label118.Size = new System.Drawing.Size(31, 13);
-            this.label118.TabIndex = 8;
-            this.label118.Text = "1.0.0";
-            // 
-            // pictureBox14
-            // 
-            this.pictureBox14.Image = ((System.Drawing.Image)(resources.GetObject("pictureBox14.Image")));
-            this.pictureBox14.Location = new System.Drawing.Point(16, 2);
-            this.pictureBox14.Name = "pictureBox14";
-            this.pictureBox14.Size = new System.Drawing.Size(50, 50);
-            this.pictureBox14.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
-            this.pictureBox14.TabIndex = 9;
-            this.pictureBox14.TabStop = false;
-            // 
-            // label126
-            // 
-            this.label126.AutoSize = true;
-            this.label126.Font = new System.Drawing.Font("Segoe UI Light", 20.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label126.Location = new System.Drawing.Point(72, 2);
-            this.label126.Name = "label126";
-            this.label126.Size = new System.Drawing.Size(249, 37);
-            this.label126.TabIndex = 10;
-            this.label126.Text = "DOW Stat Tracker by";
-            // 
-            // label127
-            // 
-            this.label127.AutoSize = true;
-            this.label127.Font = new System.Drawing.Font("Segoe UI Light", 20.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label127.ForeColor = System.Drawing.SystemColors.HotTrack;
-            this.label127.Location = new System.Drawing.Point(312, 2);
-            this.label127.Name = "label127";
-            this.label127.Size = new System.Drawing.Size(125, 37);
-            this.label127.TabIndex = 11;
-            this.label127.Text = "INSTINCT";
-            // 
-            // label128
-            // 
-            this.label128.AutoSize = true;
-            this.label128.Location = new System.Drawing.Point(1111, 19);
-            this.label128.Name = "label128";
-            this.label128.Size = new System.Drawing.Size(73, 13);
-            this.label128.TabIndex = 12;
-            this.label128.Text = "Player Search";
-            // 
-            // pictureBox15
-            // 
-            this.pictureBox15.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.pictureBox15.Image = global::DOW_Stat_Tracker.Properties.Resources.gear;
-            this.pictureBox15.Location = new System.Drawing.Point(1231, 7);
-            this.pictureBox15.Name = "pictureBox15";
-            this.pictureBox15.Size = new System.Drawing.Size(25, 25);
-            this.pictureBox15.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
-            this.pictureBox15.TabIndex = 17;
-            this.pictureBox15.TabStop = false;
-            this.pictureBox15.Click += new System.EventHandler(this.pictureBox15_Click);
-            // 
-            // timer1
-            // 
-            this.timer1.Interval = 1000;
-            this.timer1.Tick += new System.EventHandler(this.timer1_Tick);
-            // 
-            // panel4v40
-            // 
-            this.panel4v40.BackColor = System.Drawing.Color.DarkGray;
-            this.panel4v40.Controls.Add(this.pictureBox19);
-            this.panel4v40.Location = new System.Drawing.Point(711, 4);
-            this.panel4v40.Name = "panel4v40";
-            this.panel4v40.Size = new System.Drawing.Size(145, 70);
-            this.panel4v40.TabIndex = 18;
-            this.panel4v40.Visible = false;
-            // 
-            // pictureBox19
-            // 
-            this.pictureBox19.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.pictureBox19.Image = global::DOW_Stat_Tracker.Properties.Resources.ring_alt;
-            this.pictureBox19.Location = new System.Drawing.Point(0, 0);
-            this.pictureBox19.Name = "pictureBox19";
-            this.pictureBox19.Size = new System.Drawing.Size(145, 70);
-            this.pictureBox19.SizeMode = System.Windows.Forms.PictureBoxSizeMode.CenterImage;
-            this.pictureBox19.TabIndex = 8;
-            this.pictureBox19.TabStop = false;
-            // 
-            // tabControl4
-            // 
-            this.tabControl4.Controls.Add(this.tabPage17);
-            this.tabControl4.Controls.Add(this.tabPage18);
-            this.tabControl4.Controls.Add(this.tabPage19);
-            this.tabControl4.Controls.Add(this.tabPage20);
-            this.tabControl4.Controls.Add(this.tabPage27);
-            this.tabControl4.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tabControl4.Location = new System.Drawing.Point(3, 3);
-            this.tabControl4.Name = "tabControl4";
-            this.tabControl4.SelectedIndex = 0;
-            this.tabControl4.Size = new System.Drawing.Size(1254, 592);
-            this.tabControl4.TabIndex = 9;
-            // 
-            // tabPage17
-            // 
-            this.tabPage17.Controls.Add(this.tabControl3);
-            this.tabPage17.Location = new System.Drawing.Point(4, 22);
-            this.tabPage17.Name = "tabPage17";
-            this.tabPage17.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage17.Size = new System.Drawing.Size(1246, 566);
-            this.tabPage17.TabIndex = 0;
-            this.tabPage17.Text = "1v1 Ladders";
-            this.tabPage17.UseVisualStyleBackColor = true;
-            // 
-            // tabPage19
-            // 
-            this.tabPage19.Controls.Add(this.label168);
-            this.tabPage19.Location = new System.Drawing.Point(4, 22);
-            this.tabPage19.Name = "tabPage19";
-            this.tabPage19.Size = new System.Drawing.Size(1246, 566);
-            this.tabPage19.TabIndex = 2;
-            this.tabPage19.Text = "3v3 Ladders";
-            this.tabPage19.UseVisualStyleBackColor = true;
-            // 
-            // tabPage20
-            // 
-            this.tabPage20.Controls.Add(this.label169);
-            this.tabPage20.Location = new System.Drawing.Point(4, 22);
-            this.tabPage20.Name = "tabPage20";
-            this.tabPage20.Size = new System.Drawing.Size(1246, 566);
-            this.tabPage20.TabIndex = 3;
-            this.tabPage20.Text = "4v4 Ladders";
-            this.tabPage20.UseVisualStyleBackColor = true;
-            // 
             // tabPage21
             // 
             this.tabPage21.Controls.Add(this.button7);
@@ -3182,86 +3077,6 @@
             this.tabPage21.TabIndex = 3;
             this.tabPage21.Text = "1v1 Imperial Guard";
             this.tabPage21.UseVisualStyleBackColor = true;
-            // 
-            // tabPage22
-            // 
-            this.tabPage22.Controls.Add(this.button9);
-            this.tabPage22.Controls.Add(this.textBox5);
-            this.tabPage22.Controls.Add(this.panel5v5);
-            this.tabPage22.Controls.Add(this.button10);
-            this.tabPage22.Controls.Add(this.dg5v5);
-            this.tabPage22.Controls.Add(this.label162);
-            this.tabPage22.Location = new System.Drawing.Point(4, 22);
-            this.tabPage22.Name = "tabPage22";
-            this.tabPage22.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage22.Size = new System.Drawing.Size(1232, 534);
-            this.tabPage22.TabIndex = 4;
-            this.tabPage22.Text = "1v1 Necrons";
-            this.tabPage22.UseVisualStyleBackColor = true;
-            // 
-            // tabPage23
-            // 
-            this.tabPage23.Controls.Add(this.button11);
-            this.tabPage23.Controls.Add(this.textBox6);
-            this.tabPage23.Controls.Add(this.panel6v6);
-            this.tabPage23.Controls.Add(this.button12);
-            this.tabPage23.Controls.Add(this.dg6v6);
-            this.tabPage23.Controls.Add(this.label163);
-            this.tabPage23.Location = new System.Drawing.Point(4, 22);
-            this.tabPage23.Name = "tabPage23";
-            this.tabPage23.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage23.Size = new System.Drawing.Size(1232, 534);
-            this.tabPage23.TabIndex = 5;
-            this.tabPage23.Text = "1v1 Orks";
-            this.tabPage23.UseVisualStyleBackColor = true;
-            // 
-            // tabPage24
-            // 
-            this.tabPage24.Controls.Add(this.button13);
-            this.tabPage24.Controls.Add(this.textBox7);
-            this.tabPage24.Controls.Add(this.panel7v7);
-            this.tabPage24.Controls.Add(this.button14);
-            this.tabPage24.Controls.Add(this.dg7v7);
-            this.tabPage24.Controls.Add(this.label164);
-            this.tabPage24.Location = new System.Drawing.Point(4, 22);
-            this.tabPage24.Name = "tabPage24";
-            this.tabPage24.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage24.Size = new System.Drawing.Size(1232, 534);
-            this.tabPage24.TabIndex = 6;
-            this.tabPage24.Text = "1v1 Sisters of Battle";
-            this.tabPage24.UseVisualStyleBackColor = true;
-            // 
-            // tabPage25
-            // 
-            this.tabPage25.Controls.Add(this.button15);
-            this.tabPage25.Controls.Add(this.textBox8);
-            this.tabPage25.Controls.Add(this.panel8v8);
-            this.tabPage25.Controls.Add(this.button16);
-            this.tabPage25.Controls.Add(this.dg8v8);
-            this.tabPage25.Controls.Add(this.label165);
-            this.tabPage25.Location = new System.Drawing.Point(4, 22);
-            this.tabPage25.Name = "tabPage25";
-            this.tabPage25.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage25.Size = new System.Drawing.Size(1232, 534);
-            this.tabPage25.TabIndex = 7;
-            this.tabPage25.Text = "1v1 Space Marines";
-            this.tabPage25.UseVisualStyleBackColor = true;
-            // 
-            // tabPage26
-            // 
-            this.tabPage26.Controls.Add(this.button17);
-            this.tabPage26.Controls.Add(this.textBox9);
-            this.tabPage26.Controls.Add(this.panel9v9);
-            this.tabPage26.Controls.Add(this.button18);
-            this.tabPage26.Controls.Add(this.dg9v9);
-            this.tabPage26.Controls.Add(this.label166);
-            this.tabPage26.Location = new System.Drawing.Point(4, 22);
-            this.tabPage26.Name = "tabPage26";
-            this.tabPage26.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage26.Size = new System.Drawing.Size(1232, 534);
-            this.tabPage26.TabIndex = 8;
-            this.tabPage26.Text = "1v1 Tau";
-            this.tabPage26.UseVisualStyleBackColor = true;
             // 
             // button7
             // 
@@ -3331,6 +3146,22 @@
             this.label161.TabIndex = 23;
             this.label161.Text = "1v1 Imperial Guard Ladder by \"Rating\" (Work in progress)";
             // 
+            // tabPage22
+            // 
+            this.tabPage22.Controls.Add(this.button9);
+            this.tabPage22.Controls.Add(this.textBox5);
+            this.tabPage22.Controls.Add(this.panel5v5);
+            this.tabPage22.Controls.Add(this.button10);
+            this.tabPage22.Controls.Add(this.dg5v5);
+            this.tabPage22.Controls.Add(this.label162);
+            this.tabPage22.Location = new System.Drawing.Point(4, 22);
+            this.tabPage22.Name = "tabPage22";
+            this.tabPage22.Padding = new System.Windows.Forms.Padding(3);
+            this.tabPage22.Size = new System.Drawing.Size(1232, 534);
+            this.tabPage22.TabIndex = 4;
+            this.tabPage22.Text = "1v1 Necrons";
+            this.tabPage22.UseVisualStyleBackColor = true;
+            // 
             // button9
             // 
             this.button9.Location = new System.Drawing.Point(822, 6);
@@ -3398,6 +3229,22 @@
             this.label162.Size = new System.Drawing.Size(429, 28);
             this.label162.TabIndex = 23;
             this.label162.Text = "1v1 Necrons Ladder by \"Rating\" (Work in progress)";
+            // 
+            // tabPage23
+            // 
+            this.tabPage23.Controls.Add(this.button11);
+            this.tabPage23.Controls.Add(this.textBox6);
+            this.tabPage23.Controls.Add(this.panel6v6);
+            this.tabPage23.Controls.Add(this.button12);
+            this.tabPage23.Controls.Add(this.dg6v6);
+            this.tabPage23.Controls.Add(this.label163);
+            this.tabPage23.Location = new System.Drawing.Point(4, 22);
+            this.tabPage23.Name = "tabPage23";
+            this.tabPage23.Padding = new System.Windows.Forms.Padding(3);
+            this.tabPage23.Size = new System.Drawing.Size(1232, 534);
+            this.tabPage23.TabIndex = 5;
+            this.tabPage23.Text = "1v1 Orks";
+            this.tabPage23.UseVisualStyleBackColor = true;
             // 
             // button11
             // 
@@ -3467,6 +3314,22 @@
             this.label163.TabIndex = 23;
             this.label163.Text = "1v1 Orks Ladder by \"Rating\" (Work in progress)";
             // 
+            // tabPage24
+            // 
+            this.tabPage24.Controls.Add(this.button13);
+            this.tabPage24.Controls.Add(this.textBox7);
+            this.tabPage24.Controls.Add(this.panel7v7);
+            this.tabPage24.Controls.Add(this.button14);
+            this.tabPage24.Controls.Add(this.dg7v7);
+            this.tabPage24.Controls.Add(this.label164);
+            this.tabPage24.Location = new System.Drawing.Point(4, 22);
+            this.tabPage24.Name = "tabPage24";
+            this.tabPage24.Padding = new System.Windows.Forms.Padding(3);
+            this.tabPage24.Size = new System.Drawing.Size(1232, 534);
+            this.tabPage24.TabIndex = 6;
+            this.tabPage24.Text = "1v1 Sisters of Battle";
+            this.tabPage24.UseVisualStyleBackColor = true;
+            // 
             // button13
             // 
             this.button13.Location = new System.Drawing.Point(822, 6);
@@ -3534,6 +3397,22 @@
             this.label164.Size = new System.Drawing.Size(485, 28);
             this.label164.TabIndex = 23;
             this.label164.Text = "1v1 Sisters of Battle Ladder by \"Rating\" (Work in progress)";
+            // 
+            // tabPage25
+            // 
+            this.tabPage25.Controls.Add(this.button15);
+            this.tabPage25.Controls.Add(this.textBox8);
+            this.tabPage25.Controls.Add(this.panel8v8);
+            this.tabPage25.Controls.Add(this.button16);
+            this.tabPage25.Controls.Add(this.dg8v8);
+            this.tabPage25.Controls.Add(this.label165);
+            this.tabPage25.Location = new System.Drawing.Point(4, 22);
+            this.tabPage25.Name = "tabPage25";
+            this.tabPage25.Padding = new System.Windows.Forms.Padding(3);
+            this.tabPage25.Size = new System.Drawing.Size(1232, 534);
+            this.tabPage25.TabIndex = 7;
+            this.tabPage25.Text = "1v1 Space Marines";
+            this.tabPage25.UseVisualStyleBackColor = true;
             // 
             // button15
             // 
@@ -3603,6 +3482,22 @@
             this.label165.TabIndex = 23;
             this.label165.Text = "1v1 Space Marines Ladder by \"Rating\" (Work in progress)";
             // 
+            // tabPage26
+            // 
+            this.tabPage26.Controls.Add(this.button17);
+            this.tabPage26.Controls.Add(this.textBox9);
+            this.tabPage26.Controls.Add(this.panel9v9);
+            this.tabPage26.Controls.Add(this.button18);
+            this.tabPage26.Controls.Add(this.dg9v9);
+            this.tabPage26.Controls.Add(this.label166);
+            this.tabPage26.Location = new System.Drawing.Point(4, 22);
+            this.tabPage26.Name = "tabPage26";
+            this.tabPage26.Padding = new System.Windows.Forms.Padding(3);
+            this.tabPage26.Size = new System.Drawing.Size(1232, 534);
+            this.tabPage26.TabIndex = 8;
+            this.tabPage26.Text = "1v1 Tau";
+            this.tabPage26.UseVisualStyleBackColor = true;
+            // 
             // button17
             // 
             this.button17.Location = new System.Drawing.Point(822, 6);
@@ -3670,47 +3565,6 @@
             this.label166.Size = new System.Drawing.Size(387, 28);
             this.label166.TabIndex = 23;
             this.label166.Text = "1v1 Tau Ladder by \"Rating\" (Work in progress)";
-            // 
-            // tabPage27
-            // 
-            this.tabPage27.Controls.Add(this.top100Players);
-            this.tabPage27.Location = new System.Drawing.Point(4, 22);
-            this.tabPage27.Name = "tabPage27";
-            this.tabPage27.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage27.Size = new System.Drawing.Size(1246, 566);
-            this.tabPage27.TabIndex = 4;
-            this.tabPage27.Text = "Top 100 Players";
-            this.tabPage27.UseVisualStyleBackColor = true;
-            // 
-            // label168
-            // 
-            this.label168.AutoSize = true;
-            this.label168.Font = new System.Drawing.Font("Segoe UI Light", 15F);
-            this.label168.Location = new System.Drawing.Point(558, 269);
-            this.label168.Name = "label168";
-            this.label168.Size = new System.Drawing.Size(131, 28);
-            this.label168.TabIndex = 25;
-            this.label168.Text = "Coming Soon!";
-            // 
-            // label169
-            // 
-            this.label169.AutoSize = true;
-            this.label169.Font = new System.Drawing.Font("Segoe UI Light", 15F);
-            this.label169.Location = new System.Drawing.Point(510, 269);
-            this.label169.Name = "label169";
-            this.label169.Size = new System.Drawing.Size(226, 28);
-            this.label169.TabIndex = 25;
-            this.label169.Text = "Coming Soon! (Data N/A)";
-            // 
-            // button19
-            // 
-            this.button19.Location = new System.Drawing.Point(921, 15);
-            this.button19.Name = "button19";
-            this.button19.Size = new System.Drawing.Size(89, 40);
-            this.button19.TabIndex = 19;
-            this.button19.Text = "Refresh All";
-            this.button19.UseVisualStyleBackColor = true;
-            this.button19.Click += new System.EventHandler(this.button19_Click);
             // 
             // tabPage18
             // 
@@ -4488,9 +4342,56 @@
             this.label178.TabIndex = 23;
             this.label178.Text = "2v2 Tau Ladder by \"Rating\" (Work in progress)";
             // 
-            // rootBindingSource
+            // tabPage19
             // 
-            this.rootBindingSource.DataSource = typeof(DOW_Stat_Tracker.Root);
+            this.tabPage19.Controls.Add(this.label168);
+            this.tabPage19.Location = new System.Drawing.Point(4, 22);
+            this.tabPage19.Name = "tabPage19";
+            this.tabPage19.Size = new System.Drawing.Size(1246, 566);
+            this.tabPage19.TabIndex = 2;
+            this.tabPage19.Text = "3v3 Ladders";
+            this.tabPage19.UseVisualStyleBackColor = true;
+            // 
+            // label168
+            // 
+            this.label168.AutoSize = true;
+            this.label168.Font = new System.Drawing.Font("Segoe UI Light", 15F);
+            this.label168.Location = new System.Drawing.Point(558, 269);
+            this.label168.Name = "label168";
+            this.label168.Size = new System.Drawing.Size(131, 28);
+            this.label168.TabIndex = 25;
+            this.label168.Text = "Coming Soon!";
+            // 
+            // tabPage20
+            // 
+            this.tabPage20.Controls.Add(this.label169);
+            this.tabPage20.Location = new System.Drawing.Point(4, 22);
+            this.tabPage20.Name = "tabPage20";
+            this.tabPage20.Size = new System.Drawing.Size(1246, 566);
+            this.tabPage20.TabIndex = 3;
+            this.tabPage20.Text = "4v4 Ladders";
+            this.tabPage20.UseVisualStyleBackColor = true;
+            // 
+            // label169
+            // 
+            this.label169.AutoSize = true;
+            this.label169.Font = new System.Drawing.Font("Segoe UI Light", 15F);
+            this.label169.Location = new System.Drawing.Point(510, 269);
+            this.label169.Name = "label169";
+            this.label169.Size = new System.Drawing.Size(226, 28);
+            this.label169.TabIndex = 25;
+            this.label169.Text = "Coming Soon! (Data N/A)";
+            // 
+            // tabPage27
+            // 
+            this.tabPage27.Controls.Add(this.top100Players);
+            this.tabPage27.Location = new System.Drawing.Point(4, 22);
+            this.tabPage27.Name = "tabPage27";
+            this.tabPage27.Padding = new System.Windows.Forms.Padding(3);
+            this.tabPage27.Size = new System.Drawing.Size(1246, 566);
+            this.tabPage27.TabIndex = 4;
+            this.tabPage27.Text = "Top 100 Players";
+            this.tabPage27.UseVisualStyleBackColor = true;
             // 
             // top100Players
             // 
@@ -4500,6 +4401,117 @@
             this.top100Players.Name = "top100Players";
             this.top100Players.Size = new System.Drawing.Size(1240, 560);
             this.top100Players.TabIndex = 0;
+            // 
+            // label118
+            // 
+            this.label118.AutoSize = true;
+            this.label118.Location = new System.Drawing.Point(76, 39);
+            this.label118.Name = "label118";
+            this.label118.Size = new System.Drawing.Size(31, 13);
+            this.label118.TabIndex = 8;
+            this.label118.Text = "1.0.0";
+            // 
+            // pictureBox14
+            // 
+            this.pictureBox14.Image = ((System.Drawing.Image)(resources.GetObject("pictureBox14.Image")));
+            this.pictureBox14.Location = new System.Drawing.Point(16, 2);
+            this.pictureBox14.Name = "pictureBox14";
+            this.pictureBox14.Size = new System.Drawing.Size(50, 50);
+            this.pictureBox14.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
+            this.pictureBox14.TabIndex = 9;
+            this.pictureBox14.TabStop = false;
+            // 
+            // label126
+            // 
+            this.label126.AutoSize = true;
+            this.label126.Font = new System.Drawing.Font("Segoe UI Light", 20.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label126.Location = new System.Drawing.Point(72, 2);
+            this.label126.Name = "label126";
+            this.label126.Size = new System.Drawing.Size(249, 37);
+            this.label126.TabIndex = 10;
+            this.label126.Text = "DOW Stat Tracker by";
+            // 
+            // label127
+            // 
+            this.label127.AutoSize = true;
+            this.label127.Font = new System.Drawing.Font("Segoe UI Light", 20.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label127.ForeColor = System.Drawing.SystemColors.HotTrack;
+            this.label127.Location = new System.Drawing.Point(312, 2);
+            this.label127.Name = "label127";
+            this.label127.Size = new System.Drawing.Size(125, 37);
+            this.label127.TabIndex = 11;
+            this.label127.Text = "INSTINCT";
+            // 
+            // label128
+            // 
+            this.label128.AutoSize = true;
+            this.label128.Location = new System.Drawing.Point(1111, 19);
+            this.label128.Name = "label128";
+            this.label128.Size = new System.Drawing.Size(73, 13);
+            this.label128.TabIndex = 12;
+            this.label128.Text = "Player Search";
+            // 
+            // pictureBox15
+            // 
+            this.pictureBox15.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.pictureBox15.Image = global::DOW_Stat_Tracker.Properties.Resources.gear;
+            this.pictureBox15.Location = new System.Drawing.Point(1231, 7);
+            this.pictureBox15.Name = "pictureBox15";
+            this.pictureBox15.Size = new System.Drawing.Size(25, 25);
+            this.pictureBox15.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
+            this.pictureBox15.TabIndex = 17;
+            this.pictureBox15.TabStop = false;
+            this.pictureBox15.Click += new System.EventHandler(this.pictureBox15_Click);
+            // 
+            // timer1
+            // 
+            this.timer1.Interval = 1000;
+            this.timer1.Tick += new System.EventHandler(this.timer1_Tick);
+            // 
+            // panel4v40
+            // 
+            this.panel4v40.BackColor = System.Drawing.Color.DarkGray;
+            this.panel4v40.Controls.Add(this.pictureBox19);
+            this.panel4v40.Location = new System.Drawing.Point(711, 4);
+            this.panel4v40.Name = "panel4v40";
+            this.panel4v40.Size = new System.Drawing.Size(145, 70);
+            this.panel4v40.TabIndex = 18;
+            this.panel4v40.Visible = false;
+            // 
+            // pictureBox19
+            // 
+            this.pictureBox19.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.pictureBox19.Image = global::DOW_Stat_Tracker.Properties.Resources.ring_alt;
+            this.pictureBox19.Location = new System.Drawing.Point(0, 0);
+            this.pictureBox19.Name = "pictureBox19";
+            this.pictureBox19.Size = new System.Drawing.Size(145, 70);
+            this.pictureBox19.SizeMode = System.Windows.Forms.PictureBoxSizeMode.CenterImage;
+            this.pictureBox19.TabIndex = 8;
+            this.pictureBox19.TabStop = false;
+            // 
+            // button19
+            // 
+            this.button19.Location = new System.Drawing.Point(921, 15);
+            this.button19.Name = "button19";
+            this.button19.Size = new System.Drawing.Size(89, 40);
+            this.button19.TabIndex = 19;
+            this.button19.Text = "Refresh All";
+            this.button19.UseVisualStyleBackColor = true;
+            this.button19.Click += new System.EventHandler(this.button19_Click);
+            // 
+            // rootBindingSource
+            // 
+            this.rootBindingSource.DataSource = typeof(DOW_Stat_Tracker.Root);
+            // 
+            // label170
+            // 
+            this.label170.AutoSize = true;
+            this.label170.Font = new System.Drawing.Font("Segoe UI Light", 25F);
+            this.label170.Location = new System.Drawing.Point(647, 84);
+            this.label170.Name = "label170";
+            this.label170.Size = new System.Drawing.Size(381, 46);
+            this.label170.TabIndex = 6;
+            this.label170.Text = "Currently working on this!";
             // 
             // Form1
             // 
@@ -4577,14 +4589,16 @@
             this.tabPage1.ResumeLayout(false);
             this.groupBox3.ResumeLayout(false);
             this.groupBox3.PerformLayout();
+            this.groupBox1.ResumeLayout(false);
+            this.groupBox1.PerformLayout();
             this.groupBox2.ResumeLayout(false);
             this.groupBox2.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox13)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox12)).EndInit();
-            this.groupBox1.ResumeLayout(false);
-            this.groupBox1.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox11)).EndInit();
             this.tabPage11.ResumeLayout(false);
+            this.tabControl4.ResumeLayout(false);
+            this.tabPage17.ResumeLayout(false);
             this.tabControl3.ResumeLayout(false);
             this.tabPage14.ResumeLayout(false);
             this.tabPage14.PerformLayout();
@@ -4601,47 +4615,36 @@
             this.panel3v3.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox16)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.dg3v3)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox14)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox15)).EndInit();
-            this.panel4v40.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox19)).EndInit();
-            this.tabControl4.ResumeLayout(false);
-            this.tabPage17.ResumeLayout(false);
-            this.tabPage19.ResumeLayout(false);
-            this.tabPage19.PerformLayout();
-            this.tabPage20.ResumeLayout(false);
-            this.tabPage20.PerformLayout();
             this.tabPage21.ResumeLayout(false);
             this.tabPage21.PerformLayout();
-            this.tabPage22.ResumeLayout(false);
-            this.tabPage22.PerformLayout();
-            this.tabPage23.ResumeLayout(false);
-            this.tabPage23.PerformLayout();
-            this.tabPage24.ResumeLayout(false);
-            this.tabPage24.PerformLayout();
-            this.tabPage25.ResumeLayout(false);
-            this.tabPage25.PerformLayout();
-            this.tabPage26.ResumeLayout(false);
-            this.tabPage26.PerformLayout();
             this.panel4v4.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox20)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.dg4v4)).EndInit();
+            this.tabPage22.ResumeLayout(false);
+            this.tabPage22.PerformLayout();
             this.panel5v5.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox21)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.dg5v5)).EndInit();
+            this.tabPage23.ResumeLayout(false);
+            this.tabPage23.PerformLayout();
             this.panel6v6.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox22)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.dg6v6)).EndInit();
+            this.tabPage24.ResumeLayout(false);
+            this.tabPage24.PerformLayout();
             this.panel7v7.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox23)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.dg7v7)).EndInit();
+            this.tabPage25.ResumeLayout(false);
+            this.tabPage25.PerformLayout();
             this.panel8v8.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox24)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.dg8v8)).EndInit();
+            this.tabPage26.ResumeLayout(false);
+            this.tabPage26.PerformLayout();
             this.panel9v9.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox25)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.dg9v9)).EndInit();
-            this.tabPage27.ResumeLayout(false);
             this.tabPage18.ResumeLayout(false);
             this.tabConrol001.ResumeLayout(false);
             this.tabPage28.ResumeLayout(false);
@@ -4689,8 +4692,17 @@
             this.panel9.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox34)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.tau2v2)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.rootBindingSource)).EndInit();
+            this.tabPage19.ResumeLayout(false);
+            this.tabPage19.PerformLayout();
+            this.tabPage20.ResumeLayout(false);
+            this.tabPage20.PerformLayout();
+            this.tabPage27.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.top100Players)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox14)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox15)).EndInit();
+            this.panel4v40.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox19)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.rootBindingSource)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -5070,6 +5082,7 @@
         private System.Windows.Forms.DataGridView tau2v2;
         private System.Windows.Forms.Label label178;
         private System.Windows.Forms.DataGridView top100Players;
+        private System.Windows.Forms.Label label170;
     }
 }
 

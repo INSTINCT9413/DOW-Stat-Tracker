@@ -14,13 +14,15 @@ using static System.Windows.Forms.VisualStyles.VisualStyleElement.StartPanel;
 using System.Configuration;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement.Button;
 using System.Net.Http;
+using System.Text.RegularExpressions;
 
 namespace DOW_Stat_Tracker
 {
-    public partial class Form3 : Form
+    public partial class SettingsForm : Form
     {
         readonly string updater = Application.StartupPath + "updater.exe";
-        public Form3()
+        public string Changelog = "";
+        public SettingsForm()
         {
             InitializeComponent();
             label4.Text = "Installed Version: " + Application.ProductVersion;
@@ -173,7 +175,34 @@ namespace DOW_Stat_Tracker
                 }
             }
         }
+        public async Task GetChangelog()
+        {
+            string updateUrl = "https://raw.githubusercontent.com/INSTINCT9413/DOW-Stat-Tracker/master/updates.txt";
 
+            using (HttpClient client = new HttpClient())
+            {
+                string content = await client.GetStringAsync(updateUrl);
+
+                var lines = content.Split(new[] { '\n', '\r' }, StringSplitOptions.RemoveEmptyEntries)
+                                   .Select(line => line.Split('='))
+                                   .Where(parts => parts.Length == 2) // ✅ ignore bad lines
+                                   .ToDictionary(parts => parts[0].Trim().ToLower(), parts => parts[1].Trim());
+
+                // ✅ Safe lookups
+                if (!lines.TryGetValue("version", out string latestVersion) ||
+                    !lines.TryGetValue("changelog", out string changelog) ||
+                    !lines.TryGetValue("url", out string downloadUrl))
+                {
+                    MessageBox.Show("Update file is missing required fields.", "Update Error",
+                        MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+
+                changelog = Regex.Replace(changelog, @";\s", "\n");
+
+                Changelog = $"Version: {latestVersion}\n\r" + changelog;
+            }
+        }
         private async Task DownloadAndUpdate(string downloadUrl, string newVersion)
         {
             string updateDir = Path.Combine(
@@ -245,6 +274,25 @@ namespace DOW_Stat_Tracker
                 MessageBox.Show("License file not found.", "Error",
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
+        }
+
+        private void button4_Click(object sender, EventArgs e)
+        {
+            ChangelogForm changelogForm = new ChangelogForm();
+            var _ = GetChangelog().ContinueWith(t =>
+            {
+                if (t.Exception != null)
+                {
+                    MessageBox.Show("Failed to fetch changelog.", "Error",
+                        MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+                this.Invoke((Action)(() =>
+                {
+                    changelogForm.SetChangelogText(Changelog);
+                    changelogForm.ShowDialog();
+                }));
+            });
         }
     }
 }

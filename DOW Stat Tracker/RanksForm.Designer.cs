@@ -1,6 +1,6 @@
 ﻿namespace DOW_Stat_Tracker
 {
-    partial class Form2
+    partial class RanksForm
     {
         /// <summary>
         /// Required designer variable.
@@ -28,7 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form2));
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(RanksForm));
             this.textBox1 = new System.Windows.Forms.TextBox();
             this.label1 = new System.Windows.Forms.Label();
             this.pictureBox1 = new System.Windows.Forms.PictureBox();
@@ -942,7 +942,7 @@
             this.label39.TabIndex = 78;
             this.label39.Text = "Rank: Emperor of Mankind\r\nXP: 20000000";
             // 
-            // Form2
+            // RanksForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
@@ -1030,7 +1030,7 @@
             this.Controls.Add(this.textBox1);
             this.DoubleBuffered = true;
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedToolWindow;
-            this.Name = "Form2";
+            this.Name = "RanksForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "DOW Stat Tracker by INSTINCT - About Ranking System";
             this.Load += new System.EventHandler(this.Form2_Load);

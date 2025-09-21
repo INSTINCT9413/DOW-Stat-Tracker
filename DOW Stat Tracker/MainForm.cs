@@ -17,13 +17,15 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Xml.Linq;
+using static DOW_Stat_Tracker.MainForm;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement.StartPanel;
 
 namespace DOW_Stat_Tracker
 {
-    public partial class Form1 : Form
+    public partial class MainForm : Form
     {
-        public Form1()
+
+        public MainForm()
         {
             InitializeComponent();
         }
@@ -35,8 +37,17 @@ namespace DOW_Stat_Tracker
             public List<MatchHistoryStat> matchHistoryStats { get; set; }
             public List<StatGroup> statGroups { get; set; }
             public List<LeaderboardStat> leaderboardStats { get; set; }
+            public List<Profile> profiles { get; set; }
         }
-
+        public class Profile
+        {
+            public int profile_id { get; set; }
+            public string alias { get; set; }
+            public string name { get; set; }
+            public int xp { get; set; }
+            public int level { get; set; }
+            public string country { get; set; }
+        }
         public class LeaderboardEntry
         {
             public int Rank { get; set; }
@@ -183,11 +194,14 @@ namespace DOW_Stat_Tracker
         private Root data;
         private int profileId = 11019565; // TODO: replace with your profile ID
         private string steamID = "";
-
+        private string GetRaceName(int raceId)
+        {
+            return Races.ContainsKey(raceId) ? Races[raceId] : $"Unknown ({raceId})";
+        }
         private async void btnLoadJson_Click(object sender, EventArgs e)
         {
 
-            if(!string.IsNullOrEmpty(txtUsername.Text))
+            if (!string.IsNullOrEmpty(txtUsername.Text))
             {
                 panel4v40.Bounds = this.ClientRectangle;
                 panel4v40.Visible = true;
@@ -207,16 +221,24 @@ namespace DOW_Stat_Tracker
                     }
 
                     // Save username in settings
+                    int mainProfileId = 0; // <- set this to the recurring player's profile_id
+
                     var settings = Properties.Settings.Default;
                     typeof(Settings).GetProperty("LastUsername")?.SetValue(settings, username);
                     settings.Save();
                     await LoadPersonalStats(username);
                     string getRecentMatches = $"https://dow-api.reliclink.com/community/leaderboard/getRecentMatchHistory?title=dow1-de&aliases=[{username}]";
+                    int searchedProfileId = 0;
                     using (HttpClient client = new HttpClient())
                     {
                         string json = await client.GetStringAsync(getRecentMatches);
                         data = JsonConvert.DeserializeObject<Root>(json);
 
+                        // Access matches and profiles
+                        //var automatches = data.matchHistoryStats ?? new List<MatchHistoryStat>();
+                        var profiles = data.profiles ?? new List<Profile>();
+                        var aliasLookup = profiles.ToDictionary(p => p.profile_id, p => p.alias);
+                        searchedProfileId = profiles.FirstOrDefault(p => p.alias.Equals(username, StringComparison.OrdinalIgnoreCase))?.profile_id ?? 0;
                         if (data == null || data.matchHistoryStats == null || !data.matchHistoryStats.Any())
                         {
                             panel4v40.Visible = false;
@@ -239,39 +261,133 @@ namespace DOW_Stat_Tracker
                             return;
                         }
 
-                        // Flatten all match members
-                        var players = automatches
-                            .SelectMany(m => m.matchhistorymember)
-                            .Select(p => new
-                            {
-                                p.profile_id,
-                                Race = Races.ContainsKey(p.race_id) ? Races[p.race_id] : $"Unknown ({p.race_id})",
-                                p.teamid,
-                                p.wins,
-                                p.losses,
-                                Outcome = p.outcome == 1 ? "Win" : "Loss",
-                                p.newrating,
-                                p.oldrating
-                            })
-                            .ToList();
+                        // Build dictionary for fast lookup
+                        //var aliasLookup = profiles.ToDictionary(p => p.profile_id, p => p.alias);
 
-                        dgvProfiles.DataSource = players;
+                        // Flatten all match members
+                        var recentMatches = automatches.Select(match =>
+                        {
+                            var members = match.matchhistorymember.ToList();
+                            if (members.Count < 2) return null; // skip incomplete matches
+
+                            var p1 = members[0];
+                            var p2 = members[1];
+
+
+
+                            // Rating change for both players
+                            var self = (p1.profile_id == mainProfileId) ? p1 : p2;
+                            var opponent = (p1.profile_id == mainProfileId) ? p2 : p1;
+
+                            // rating changes
+                            int ratingChangeSelf = self.newrating - self.oldrating;
+                            int ratingChangeOpponent = opponent.newrating - opponent.oldrating;
+
+
+                            // Convert epoch to DateTime
+                            DateTime start = DateTimeOffset.FromUnixTimeSeconds(match.startgametime).LocalDateTime;
+                            DateTime end = DateTimeOffset.FromUnixTimeSeconds(match.completiontime).LocalDateTime;
+                            TimeSpan duration = end - start;
+
+                            // Lookup aliases by profile_id
+                            string aliasSelf = aliasLookup.ContainsKey(self.profile_id) ? aliasLookup[self.profile_id] : self.profile_id.ToString();
+                            string aliasOpponent = aliasLookup.ContainsKey(opponent.profile_id) ? aliasLookup[opponent.profile_id] : opponent.profile_id.ToString();
+
+                             return new
+    {
+        SelfAlias = aliasSelf,
+        OpponentAlias = aliasOpponent,
+        SelfRating = $"{self.oldrating} → {self.newrating} ({(ratingChangeSelf >= 0 ? "+" : "")}{ratingChangeSelf})",
+        OpponentRating = $"{opponent.oldrating} → {opponent.newrating} ({(ratingChangeOpponent >= 0 ? "+" : "")}{ratingChangeOpponent})",
+        SelfRecord = $"{self.wins}W / {self.losses}L",
+        OpponentRecord = $"{opponent.wins}W / {opponent.losses}L",
+        Map = match.mapname,
+        StartTime = start,
+        EndTime = end,
+        Duration = $"{duration.Minutes}m {duration.Seconds}s"
+    };
+                        })
+                        .Where(m => m != null)
+                        .OrderByDescending(m => m.EndTime)
+                        .ToList();
+
+                        dgvProfiles.DataSource = recentMatches;
+                        DataTable table = new DataTable();
+
+                        if (recentMatches.Any())
+                        {
+                            var first = recentMatches.First();
+                            var selfAlias = aliasLookup.ContainsKey(searchedProfileId)
+    ? aliasLookup[searchedProfileId]
+    : searchedProfileId.ToString();
+
+                            // Extract aliases (example assumes they’re in the Match string)
+
+
+
+                            table.Columns.Add("Match");
+                            table.Columns.Add($"{selfAlias} Rating");
+                            table.Columns.Add($"{selfAlias} Record");
+                            table.Columns.Add($"Opponent Rating");
+                            table.Columns.Add($"Opponent Record");
+                            table.Columns.Add("Map");
+                            table.Columns.Add("StartTime");
+                            table.Columns.Add("EndTime");
+                            table.Columns.Add("Duration");
+
+                            foreach (var match in recentMatches)
+                            {
+                                table.Rows.Add(
+                                    $"{match.SelfAlias} vs {match.OpponentAlias}",
+                                    match.SelfRating,
+                                    match.SelfRecord,
+                                    match.OpponentRating,
+                                    match.OpponentRecord,
+                                    match.Map,
+                                    match.StartTime,
+                                    match.EndTime,
+                                    match.Duration
+                                    
+                                );
+                            }
+                        }
+
+                        dgvProfiles.DataSource = table;
+
+
                         label124.Text = $"Found {dgvProfiles.RowCount} games that were automatched (Work in progress)";
                         label125.Text = $"Breakdown of {dgvProfiles.RowCount} games played (Work in progress)";
                         // Compute race breakdown
-                        var raceBreakdown = players
+                        // Flatten each player out of recentMatches
+                        // Flatten all players across matches
+                        var allPlayers = automatches
+                            .SelectMany(m => m.matchhistorymember)
+                            .Select(p => new
+                            {
+                                Race = GetRaceName(p.race_id),
+                                Outcome = p.outcome == 1 ? "Win" : "Loss"
+                            })
+                            .ToList();
+
+                        // Group by race and calculate stats
+                        var raceBreakdown = allPlayers
                             .GroupBy(p => p.Race)
                             .Select(g => new
                             {
                                 Race = g.Key,
                                 Wins = g.Count(x => x.Outcome == "Win"),
                                 Losses = g.Count(x => x.Outcome == "Loss"),
-                                WinRate = g.Any() ? (g.Count(x => x.Outcome == "Win") * 100.0 / g.Count()).ToString("F1") + "%" : "0%"
+                                WinRate = g.Any()
+                                    ? (g.Count(x => x.Outcome == "Win") * 100.0 / g.Count()).ToString("F1") + "%"
+                                    : "0%"
                             })
                             .OrderByDescending(x => x.Wins + x.Losses)
                             .ToList();
 
+                        // Bind to grid
                         dgvRaces.DataSource = raceBreakdown;
+
+
 
                         // Build per-race stats only from automatches
                         var raceStats = new Dictionary<int, (int wins, int losses)>();
@@ -292,17 +408,23 @@ namespace DOW_Stat_Tracker
                             }
                         }
 
-                        var raceResults = raceStats.Select(r => new
-                        {
-                            Race = Races.ContainsKey(r.Key) ? Races[r.Key] : $"Unknown ({r.Key})",
-                            Wins = r.Value.wins,
-                            Losses = r.Value.losses,
-                            WinRate = (r.Value.wins + r.Value.losses) > 0
-                                ? (r.Value.wins * 100.0 / (r.Value.wins + r.Value.losses)).ToString("F1") + "%"
-                                : "0%"
-                        }).ToList();
+                        var raceraceStats = automatches
+    .SelectMany(m => m.matchhistorymember)
+    .Where(member => member.profile_id == profileId)
+    .GroupBy(member => member.race_id)
+    .Select(g => new
+    {
+        Race = Races.ContainsKey(g.Key) ? Races[g.Key] : $"Unknown ({g.Key})",
+        Wins = g.Count(x => x.outcome == 1),
+        Losses = g.Count(x => x.outcome != 1),
+        WinRate = g.Any()
+            ? (g.Count(x => x.outcome == 1) * 100.0 / g.Count()).ToString("F1") + "%"
+            : "0%"
+    })
+    .ToList();
 
-                        dataGridView1.DataSource = raceResults;
+                        dataGridView1.DataSource = raceraceStats;
+
 
                         // Profile summary (only automatch totals)
                         int totalWins = raceStats.Sum(r => r.Value.wins);
@@ -2770,15 +2892,15 @@ namespace DOW_Stat_Tracker
 
         private void pictureBox13_Click(object sender, EventArgs e)
         {
-            Form2 rankSystemInfo;
-            rankSystemInfo = new Form2();
+            RanksForm rankSystemInfo;
+            rankSystemInfo = new RanksForm();
             rankSystemInfo.Show();
         }
 
         private void pictureBox15_Click(object sender, EventArgs e)
         {
-            Form3 settings;
-            settings = new Form3();
+            SettingsForm settings;
+            settings = new SettingsForm();
             settings.Show();
         }
 
