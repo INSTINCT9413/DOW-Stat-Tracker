@@ -1,4 +1,16 @@
-version=1.0.1.0
-changelog=Updated DOW Rank System; Added Leaderboards
-url=https://github.com/INSTINCT9413/DOW-Stat-Tracker/releases/download/1.0.1.portable/DOW.Stat.Tracker.portable.zip
+version=1.0.2.0
+changelog=Refactor UI and enhance resource management;
+- Added new GIF and bitmap resources to improve visual feedback.;
+- Updated `Resources.Designer.cs` and `Resources.resx` for new assets.;
+- Replaced `ring_alt` with `loading4` and `download` in `pictureBox19` and `pictureBox1`.;
+- Introduced `splitContainer2` in `panel4v40` for better layout organization.;
+- Enhanced `panel4v40` with updated size, location, and child controls.;
+- Changed `MainForm` background color to `Color.White` and renamed from `Form1`.;
+- Improved DataGridView performance with double buffering and styling.;
+- Added `CheckInternetConnection` for better offline handling.;
+- Preloaded and cached country flags for DataGridViews.;
+- Refactored leaderboard loading, match data processing, and error handling.;
+- Improved user feedback with loading indicators and enhanced error messages.;
+- Updated profile and match statistics for better clarity and detail.;
+url=https://github.com/INSTINCT9413/DOW-Stat-Tracker/releases/download/1.0.2.portable/DOW.Stat.Tracker.portable.zip
 
