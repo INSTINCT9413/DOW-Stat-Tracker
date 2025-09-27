@@ -348,6 +348,14 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="logo.ico" />
+    <None Include="Resources\loading4.gif" />
+    <None Include="Resources\loader3245.gif" />
+    <None Include="Resources\downloads1.gif" />
+    <None Include="Resources\loadcat.gif" />
+    <None Include="Resources\cloud_load.gif" />
+    <None Include="Resources\download.gif" />
+    <None Include="Resources\downloads.gif" />
+    <None Include="Resources\Gordon.gif" />
     <None Include="Resources\Recruit1.png" />
     <None Include="Resources\Steam_icon_logo.svg.png" />
     <None Include="Resources\Warmaster.png" />

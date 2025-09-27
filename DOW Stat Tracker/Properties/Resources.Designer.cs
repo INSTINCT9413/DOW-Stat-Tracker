@@ -143,6 +143,16 @@ namespace DOW_Stat_Tracker.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap cloud_load {
+            get {
+                object obj = ResourceManager.GetObject("cloud_load", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap Codicier {
             get {
                 object obj = ResourceManager.GetObject("Codicier", resourceCulture);
@@ -206,6 +216,36 @@ namespace DOW_Stat_Tracker.Properties {
         internal static System.Drawing.Bitmap Corporal {
             get {
                 object obj = ResourceManager.GetObject("Corporal", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap download {
+            get {
+                object obj = ResourceManager.GetObject("download", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap downloads {
+            get {
+                object obj = ResourceManager.GetObject("downloads", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap downloads1 {
+            get {
+                object obj = ResourceManager.GetObject("downloads1", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
@@ -353,6 +393,16 @@ namespace DOW_Stat_Tracker.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap Gordon {
+            get {
+                object obj = ResourceManager.GetObject("Gordon", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap Grandmaster {
             get {
                 object obj = ResourceManager.GetObject("Grandmaster", resourceCulture);
@@ -466,6 +516,36 @@ namespace DOW_Stat_Tracker.Properties {
         internal static System.Drawing.Bitmap LieutenantGeneral {
             get {
                 object obj = ResourceManager.GetObject("LieutenantGeneral", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap loadcat {
+            get {
+                object obj = ResourceManager.GetObject("loadcat", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap loader3245 {
+            get {
+                object obj = ResourceManager.GetObject("loader3245", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap loading4 {
+            get {
+                object obj = ResourceManager.GetObject("loading4", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }

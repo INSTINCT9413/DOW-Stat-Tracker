@@ -18,16 +18,21 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Xml.Linq;
 using static DOW_Stat_Tracker.MainForm;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement.StartPanel;
 
 namespace DOW_Stat_Tracker
 {
     public partial class MainForm : Form
     {
-
+        private Dictionary<string, Image> FlagCache = new Dictionary<string, Image>();
         public MainForm()
         {
             InitializeComponent();
+            typeof(DataGridView).InvokeMember("DoubleBuffered",
+    System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.SetProperty,
+    null, dg1v1, new object[] { true });
+
         }
         // Classes that match the JSON structure
         public class Root
@@ -200,255 +205,296 @@ namespace DOW_Stat_Tracker
         }
         private async void btnLoadJson_Click(object sender, EventArgs e)
         {
-
-            if (!string.IsNullOrEmpty(txtUsername.Text))
+            if (!await CheckInternetConnection())
             {
-                panel4v40.Bounds = this.ClientRectangle;
-                panel4v40.Visible = true;
-                pictureBox1.Visible = true;
-
-
-                try
+                MessageBox.Show("No internet detected or connection is too slow to complete a request!. Please check your network.", "No Connection", MessageBoxButtons.OK, MessageBoxIcon.Stop);
+                return;
+            }
+            else
+            {
+                if (!string.IsNullOrEmpty(txtUsername.Text))
                 {
-                    string username = txtUsername.Text.Trim();
-                    if (string.IsNullOrWhiteSpace(username))
+                    panel4v40.Bounds = this.ClientRectangle;
+                    panel4v40.Visible = true;
+                    pictureBox1.Visible = true;
+
+
+                    try
                     {
-                        panel4v40.Visible = false;
-                        MessageBox.Show("Please enter a username first.", "Error",
-                            MessageBoxButtons.OK, MessageBoxIcon.Warning);
-
-                        return;
-                    }
-
-                    // Save username in settings
-                    int mainProfileId = 0; // <- set this to the recurring player's profile_id
-
-                    var settings = Properties.Settings.Default;
-                    typeof(Settings).GetProperty("LastUsername")?.SetValue(settings, username);
-                    settings.Save();
-                    await LoadPersonalStats(username);
-                    string getRecentMatches = $"https://dow-api.reliclink.com/community/leaderboard/getRecentMatchHistory?title=dow1-de&aliases=[{username}]";
-                    int searchedProfileId = 0;
-                    using (HttpClient client = new HttpClient())
-                    {
-                        string json = await client.GetStringAsync(getRecentMatches);
-                        data = JsonConvert.DeserializeObject<Root>(json);
-
-                        // Access matches and profiles
-                        //var automatches = data.matchHistoryStats ?? new List<MatchHistoryStat>();
-                        var profiles = data.profiles ?? new List<Profile>();
-                        var aliasLookup = profiles.ToDictionary(p => p.profile_id, p => p.alias);
-                        searchedProfileId = profiles.FirstOrDefault(p => p.alias.Equals(username, StringComparison.OrdinalIgnoreCase))?.profile_id ?? 0;
-                        if (data == null || data.matchHistoryStats == null || !data.matchHistoryStats.Any())
+                        string username = txtUsername.Text.Trim();
+                        if (string.IsNullOrWhiteSpace(username))
                         {
                             panel4v40.Visible = false;
-                            MessageBox.Show("No data found for this player.", "Info",
-                                MessageBoxButtons.OK, MessageBoxIcon.Information);
+                            MessageBox.Show("Please enter a username first.", "Error",
+                                MessageBoxButtons.OK, MessageBoxIcon.Warning);
+
                             return;
                         }
 
-                        // ✅ Only take automatched games
-                        var automatches = data.matchHistoryStats
-                            .Where(m => !string.IsNullOrEmpty(m.description) &&
-                    m.description.ToUpper().Contains("AUTOMATCH"))
-                            .ToList();
+                        // Save username in settings
+                        int mainProfileId = 0; // <- set this to the recurring player's profile_id
 
-                        if (!automatches.Any())
+                        var settings = Properties.Settings.Default;
+                        typeof(Settings).GetProperty("LastUsername")?.SetValue(settings, username);
+                        settings.Save();
+                        await LoadPersonalStats(username);
+                        string getRecentMatches = $"https://dow-api.reliclink.com/community/leaderboard/getRecentMatchHistory?title=dow1-de&aliases=[{username}]";
+                        int searchedProfileId = 0;
+                        using (HttpClient client = new HttpClient())
                         {
-                            panel4v40.Visible = false;
-                            MessageBox.Show("No automatched games found for this player.", "Info",
-                                MessageBoxButtons.OK, MessageBoxIcon.Information);
-                            return;
-                        }
+                            string json = await client.GetStringAsync(getRecentMatches);
+                            data = JsonConvert.DeserializeObject<Root>(json);
 
-                        // Build dictionary for fast lookup
-                        //var aliasLookup = profiles.ToDictionary(p => p.profile_id, p => p.alias);
-
-                        // Flatten all match members
-                        var recentMatches = automatches.Select(match =>
-                        {
-                            var members = match.matchhistorymember.ToList();
-                            if (members.Count < 2) return null; // skip incomplete matches
-
-                            var p1 = members[0];
-                            var p2 = members[1];
-
-
-
-                            // Rating change for both players
-                            var self = (p1.profile_id == mainProfileId) ? p1 : p2;
-                            var opponent = (p1.profile_id == mainProfileId) ? p2 : p1;
-
-                            // rating changes
-                            int ratingChangeSelf = self.newrating - self.oldrating;
-                            int ratingChangeOpponent = opponent.newrating - opponent.oldrating;
-
-
-                            // Convert epoch to DateTime
-                            DateTime start = DateTimeOffset.FromUnixTimeSeconds(match.startgametime).LocalDateTime;
-                            DateTime end = DateTimeOffset.FromUnixTimeSeconds(match.completiontime).LocalDateTime;
-                            TimeSpan duration = end - start;
-
-                            // Lookup aliases by profile_id
-                            string aliasSelf = aliasLookup.ContainsKey(self.profile_id) ? aliasLookup[self.profile_id] : self.profile_id.ToString();
-                            string aliasOpponent = aliasLookup.ContainsKey(opponent.profile_id) ? aliasLookup[opponent.profile_id] : opponent.profile_id.ToString();
-
-                             return new
-    {
-        SelfAlias = aliasSelf,
-        OpponentAlias = aliasOpponent,
-        SelfRating = $"{self.oldrating} → {self.newrating} ({(ratingChangeSelf >= 0 ? "+" : "")}{ratingChangeSelf})",
-        OpponentRating = $"{opponent.oldrating} → {opponent.newrating} ({(ratingChangeOpponent >= 0 ? "+" : "")}{ratingChangeOpponent})",
-        SelfRecord = $"{self.wins}W / {self.losses}L",
-        OpponentRecord = $"{opponent.wins}W / {opponent.losses}L",
-        Map = match.mapname,
-        StartTime = start,
-        EndTime = end,
-        Duration = $"{duration.Minutes}m {duration.Seconds}s"
-    };
-                        })
-                        .Where(m => m != null)
-                        .OrderByDescending(m => m.EndTime)
-                        .ToList();
-
-                        dgvProfiles.DataSource = recentMatches;
-                        DataTable table = new DataTable();
-
-                        if (recentMatches.Any())
-                        {
-                            var first = recentMatches.First();
-                            var selfAlias = aliasLookup.ContainsKey(searchedProfileId)
-    ? aliasLookup[searchedProfileId]
-    : searchedProfileId.ToString();
-
-                            // Extract aliases (example assumes they’re in the Match string)
-
-
-
-                            table.Columns.Add("Match");
-                            table.Columns.Add($"{selfAlias} Rating");
-                            table.Columns.Add($"{selfAlias} Record");
-                            table.Columns.Add($"Opponent Rating");
-                            table.Columns.Add($"Opponent Record");
-                            table.Columns.Add("Map");
-                            table.Columns.Add("StartTime");
-                            table.Columns.Add("EndTime");
-                            table.Columns.Add("Duration");
-
-                            foreach (var match in recentMatches)
+                            // Access matches and profiles
+                            //var automatches = data.matchHistoryStats ?? new List<MatchHistoryStat>();
+                            var profiles = data.profiles ?? new List<Profile>();
+                            var aliasLookup = profiles.ToDictionary(p => p.profile_id, p => p.alias);
+                            searchedProfileId = profiles.FirstOrDefault(p => p.alias.Equals(username, StringComparison.OrdinalIgnoreCase))?.profile_id ?? 0;
+                            if (data == null || data.matchHistoryStats == null || !data.matchHistoryStats.Any())
                             {
-                                table.Rows.Add(
-                                    $"{match.SelfAlias} vs {match.OpponentAlias}",
-                                    match.SelfRating,
-                                    match.SelfRecord,
-                                    match.OpponentRating,
-                                    match.OpponentRecord,
-                                    match.Map,
-                                    match.StartTime,
-                                    match.EndTime,
-                                    match.Duration
-                                    
-                                );
+                                panel4v40.Visible = false;
+                                MessageBox.Show("No data found for this player.", "Info",
+                                    MessageBoxButtons.OK, MessageBoxIcon.Information);
+                                return;
                             }
-                        }
 
-                        dgvProfiles.DataSource = table;
+                            // ✅ Only take automatched games
+                            var automatches = data.matchHistoryStats
+                                .Where(m => !string.IsNullOrEmpty(m.description) &&
+                        m.description.ToUpper().Contains("AUTOMATCH"))
+                                .ToList();
 
-
-                        label124.Text = $"Found {dgvProfiles.RowCount} games that were automatched (Work in progress)";
-                        label125.Text = $"Breakdown of {dgvProfiles.RowCount} games played (Work in progress)";
-                        // Compute race breakdown
-                        // Flatten each player out of recentMatches
-                        // Flatten all players across matches
-                        var allPlayers = automatches
-                            .SelectMany(m => m.matchhistorymember)
-                            .Select(p => new
+                            if (!automatches.Any())
                             {
-                                Race = GetRaceName(p.race_id),
-                                Outcome = p.outcome == 1 ? "Win" : "Loss"
-                            })
-                            .ToList();
+                                panel4v40.Visible = false;
+                                MessageBox.Show("No automatched games found for this player.", "Info",
+                                    MessageBoxButtons.OK, MessageBoxIcon.Information);
+                                return;
+                            }
 
-                        // Group by race and calculate stats
-                        var raceBreakdown = allPlayers
-                            .GroupBy(p => p.Race)
-                            .Select(g => new
+                            // Build dictionary for fast lookup
+                            //var aliasLookup = profiles.ToDictionary(p => p.profile_id, p => p.alias);
+
+                            // Flatten all match members
+                            // Flatten all match members
+                            var recentMatches = automatches.Select(match =>
                             {
-                                Race = g.Key,
-                                Wins = g.Count(x => x.Outcome == "Win"),
-                                Losses = g.Count(x => x.Outcome == "Loss"),
-                                WinRate = g.Any()
-                                    ? (g.Count(x => x.Outcome == "Win") * 100.0 / g.Count()).ToString("F1") + "%"
-                                    : "0%"
-                            })
-                            .OrderByDescending(x => x.Wins + x.Losses)
-                            .ToList();
+                                var members = match.matchhistorymember.ToList();
+                                if (members.Count < 2) return null; // skip incomplete matches
 
-                        // Bind to grid
-                        dgvRaces.DataSource = raceBreakdown;
+                                var p1 = members[0];
+                                var p2 = members[1];
 
+                                // Pick "self" and "opponent" based on searched profile
 
+                                var self = (p1.profile_id == mainProfileId) ? p1 : p2;
+                                var opponent = (p1.profile_id == mainProfileId) ? p2 : p1;
+                                bool isWin = self != null && self.outcome == 1;
+                                // rating changes
+                                int ratingChangeSelf = self.newrating - self.oldrating;
+                                int ratingChangeOpponent = opponent.newrating - opponent.oldrating;
 
-                        // Build per-race stats only from automatches
-                        var raceStats = new Dictionary<int, (int wins, int losses)>();
-                        foreach (var match in automatches)
-                        {
-                            foreach (var member in match.matchhistorymember)
-                            {
-                                if (member.profile_id == profileId)
+                                // Convert epoch to DateTime
+                                DateTime start = DateTimeOffset.FromUnixTimeSeconds(match.startgametime).LocalDateTime;
+                                DateTime end = DateTimeOffset.FromUnixTimeSeconds(match.completiontime).LocalDateTime;
+                                TimeSpan duration = end - start;
+
+                                // Lookup aliases by profile_id
+                                string aliasSelf = aliasLookup.ContainsKey(self.profile_id) ? aliasLookup[self.profile_id] : self.profile_id.ToString();
+                                string aliasOpponent = aliasLookup.ContainsKey(opponent.profile_id) ? aliasLookup[opponent.profile_id] : opponent.profile_id.ToString();
+
+                                return new
                                 {
-                                    if (!raceStats.ContainsKey(member.race_id))
-                                        raceStats[member.race_id] = (0, 0);
+                                    Match = $"{aliasSelf} vs {aliasOpponent} ({(isWin ? "Win" : "Loss")})",
+                                    SelfAlias = aliasSelf,
+                                    OpponentAlias = aliasOpponent,
+                                    SelfRating = $"{self.oldrating} → {self.newrating} ({(ratingChangeSelf >= 0 ? "+" : "")}{ratingChangeSelf})",
+                                    OpponentRating = $"{opponent.oldrating} → {opponent.newrating} ({(ratingChangeOpponent >= 0 ? "+" : "")}{ratingChangeOpponent})",
+                                    SelfRecord = $"{self.wins}W / {self.losses}L",
+                                    OpponentRecord = $"{opponent.wins}W / {opponent.losses}L",
+                                    Map = match.mapname,
+                                    StartTime = start,
+                                    EndTime = end,
+                                    Duration = $"{duration.Minutes}m {duration.Seconds}s",
+                                    MemberCount = members.Count
+                                };
+                            })
+                            .Where(m => m != null)
+                            .OrderByDescending(m => m.EndTime)
+                            .ToList();
 
-                                    if (member.outcome == 1)
-                                        raceStats[member.race_id] = (raceStats[member.race_id].wins + 1, raceStats[member.race_id].losses);
-                                    else
-                                        raceStats[member.race_id] = (raceStats[member.race_id].wins, raceStats[member.race_id].losses + 1);
+                            DataTable table = new DataTable();
+
+                            if (recentMatches.Any())
+                            {
+                                // Get searched profile alias
+                                var selfAlias = aliasLookup.ContainsKey(searchedProfileId)
+                                    ? aliasLookup[searchedProfileId]
+                                    : searchedProfileId.ToString();
+
+                                // Define columns
+                                table.Columns.Add("Match");
+                                table.Columns.Add($"{selfAlias} Rating");
+                                table.Columns.Add($"{selfAlias} Record");
+                                table.Columns.Add("Opponent Rating");
+                                table.Columns.Add("Opponent Record");
+                                table.Columns.Add("Map");
+                                table.Columns.Add("StartTime");
+                                table.Columns.Add("EndTime");
+                                table.Columns.Add("Duration");
+                                
+
+                                foreach (var match in recentMatches)
+                                {
+                                    // Count players on each side
+                                    var sides = match.Match.Split(new string[] { " vs " }, StringSplitOptions.None);
+                                    int side1Count = sides[0].Split(new string[] { ", " }, StringSplitOptions.None).Length;
+                                    int side2Count = sides[1].Split(new string[] { ", " }, StringSplitOptions.None).Length;
+
+                                    if (side1Count == 1 && side2Count == 1) // 1v1 match
+                                    {
+                                        bool isSearchPlayerP1 = sides[0].IndexOf(selfAlias, StringComparison.OrdinalIgnoreCase) >= 0;
+
+
+                                        if (isSearchPlayerP1)
+                                        {
+                                            table.Rows.Add(
+                                                match.Match,
+                                                match.SelfRating,
+                                                match.SelfRecord,
+                                                match.OpponentRating,
+                                                match.OpponentRecord,
+                                                match.Map,
+                                                match.StartTime,
+                                                match.EndTime,
+                                                match.Duration
+
+
+                                            );
+                                        }
+                                        else
+                                        {
+                                            table.Rows.Add(
+                                                match.Match,
+                                                match.SelfRating,
+                                                match.SelfRecord,
+                                                match.OpponentRating,
+                                                match.OpponentRecord,
+                                                match.Map,
+                                                match.StartTime,
+                                                match.EndTime,
+                                                match.Duration
+                                            );
+                                        }
+                                    }
+                                    else // team match
+                                    {
+                                        string matchupType = $"{side1Count}v{side2Count}";
+
+                                        table.Rows.Add(
+                                            match.Match,
+                                             matchupType,
+                                            "-",
+                                            matchupType,
+                                            "-",
+                                            match.Map,
+                                            match.StartTime,
+                                            match.EndTime,
+                                            match.Duration
+                                           
+                                        );
+                                    }
                                 }
                             }
+
+
+                            dgvProfiles.DataSource = table;
+                            PopulateRecentMatches_TableFixed();
+                            label124.Text = $"Found {dgvProfiles.RowCount} games that were automatched (Work in progress)";
+                            label125.Text = $"Breakdown of {dgvProfiles.RowCount} games played (Work in progress)";
+
+
+                            // Group by race and calculate stats
+                            //var raceBreakdown = allPlayers
+                            //    .GroupBy(p => p.Race)
+                            //    .Select(g => new
+                            //    {
+                            //        Race = g.Key,
+                            //        Wins = g.Count(x => x.Outcome == "Win"),
+                            //        Losses = g.Count(x => x.Outcome == "Loss"),
+                            //        WinRate = g.Any()
+                            //            ? (g.Count(x => x.Outcome == "Win") * 100.0 / g.Count()).ToString("F1") + "%"
+                            //            : "0%"
+                            //    })
+                            //    .OrderByDescending(x => x.Wins + x.Losses)
+                            //    .ToList();
+
+                            //// Bind to grid
+                            //dgvRaces.DataSource = raceBreakdown;
+
+
+
+                            // Build per-race stats only from automatches
+                            var raceStats = new Dictionary<int, (int wins, int losses)>();
+                            foreach (var match in automatches)
+                            {
+                                foreach (var member in match.matchhistorymember)
+                                {
+                                    if (member.profile_id == profileId)
+                                    {
+                                        if (!raceStats.ContainsKey(member.race_id))
+                                            raceStats[member.race_id] = (0, 0);
+
+                                        if (member.outcome == 1)
+                                            raceStats[member.race_id] = (raceStats[member.race_id].wins + 1, raceStats[member.race_id].losses);
+                                        else
+                                            raceStats[member.race_id] = (raceStats[member.race_id].wins, raceStats[member.race_id].losses + 1);
+                                    }
+                                }
+                            }
+
+                            var raceraceStats = automatches
+        .SelectMany(m => m.matchhistorymember)
+        .Where(member => member.profile_id == profileId)
+        .GroupBy(member => member.race_id)
+        .Select(g => new
+        {
+            Race = Races.ContainsKey(g.Key) ? Races[g.Key] : $"Unknown ({g.Key})",
+            Wins = g.Count(x => x.outcome == 1),
+            Losses = g.Count(x => x.outcome != 1),
+            WinRate = g.Any()
+                ? (g.Count(x => x.outcome == 1) * 100.0 / g.Count()).ToString("F1") + "%"
+                : "0%"
+        })
+        .ToList();
+
+                            dataGridView1.DataSource = raceraceStats;
+
+
+                            // Profile summary (only automatch totals)
+                            int totalWins = raceStats.Sum(r => r.Value.wins);
+                            int totalLosses = raceStats.Sum(r => r.Value.losses);
+                            double overallWR = (totalWins + totalLosses) > 0 ? totalWins * 100.0 / (totalWins + totalLosses) : 0;
+                            Username.Text = "Alias: " + txtUsername.Text.Trim() + "\n\rID: " + profileId;
+                            //Wins.Text = "Wins: " + totalWins.ToString();
+                            //Losses.Text = "Losses: " + totalLosses.ToString();
+                            //Overall.Text = "Winrate: " + overallWR.ToString("F1") + "%";
                         }
 
-                        var raceraceStats = automatches
-    .SelectMany(m => m.matchhistorymember)
-    .Where(member => member.profile_id == profileId)
-    .GroupBy(member => member.race_id)
-    .Select(g => new
-    {
-        Race = Races.ContainsKey(g.Key) ? Races[g.Key] : $"Unknown ({g.Key})",
-        Wins = g.Count(x => x.outcome == 1),
-        Losses = g.Count(x => x.outcome != 1),
-        WinRate = g.Any()
-            ? (g.Count(x => x.outcome == 1) * 100.0 / g.Count()).ToString("F1") + "%"
-            : "0%"
-    })
-    .ToList();
-
-                        dataGridView1.DataSource = raceraceStats;
-
-
-                        // Profile summary (only automatch totals)
-                        int totalWins = raceStats.Sum(r => r.Value.wins);
-                        int totalLosses = raceStats.Sum(r => r.Value.losses);
-                        double overallWR = (totalWins + totalLosses) > 0 ? totalWins * 100.0 / (totalWins + totalLosses) : 0;
-                        Username.Text = "Alias: " + txtUsername.Text.Trim() + "\n\rID: " + profileId;
-                        //Wins.Text = "Wins: " + totalWins.ToString();
-                        //Losses.Text = "Losses: " + totalLosses.ToString();
-                        //Overall.Text = "Winrate: " + overallWR.ToString("F1") + "%";
+                        pictureBox1.Visible = false;
+                    }
+                    catch (Exception ex)
+                    {
+                        panel4v40.Visible = false;
+                        MessageBox.Show($"Error fetching data: {ex.Message}", "Error",
+                            MessageBoxButtons.OK, MessageBoxIcon.Error);
                     }
 
-                    pictureBox1.Visible = false;
-                }
-                catch (Exception ex)
-                {
+                    PopulateMainTab();
                     panel4v40.Visible = false;
-                    MessageBox.Show($"Error fetching data: {ex.Message}", "Error",
-                        MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
-
-                PopulateMainTab();
-                panel4v40.Visible = false;
+                //panel1.SendToBack();
             }
-            //panel1.SendToBack();
         }
         public string GetRankName(int xp)
         {
@@ -509,6 +555,199 @@ namespace DOW_Stat_Tracker
     new PlayerRank { Level = 38, MinXP = 20000000, RankName = "Emperor of Mankind", RankIcon = Properties.Resources.EmperorofMankind }
 
 };
+        private void dgvProfiles_CellFormatting(object sender, DataGridViewCellFormattingEventArgs e)
+        {
+            if (e.Value == null) return;
+
+            string text = e.Value.ToString();
+
+            // Identify placeholders
+            bool isMatchupPlaceholder = text.EndsWith(" Match"); // e.g. "2v2 Match", "3v3 Match"
+            bool isDashPlaceholder = text == "-";
+
+            if (isMatchupPlaceholder || isDashPlaceholder)
+            {
+                e.CellStyle.ForeColor = Color.Gray;
+                e.CellStyle.BackColor = Color.LightCyan;
+                e.CellStyle.Font = new Font(dgvProfiles.Font, FontStyle.Italic);
+            }
+            if (text.Contains("Win"))
+            {
+                e.CellStyle.BackColor = Color.LightGreen;
+            }
+            else if (text.Contains("Loss"))
+            {
+                e.CellStyle.BackColor = Color.LightSalmon;
+            }
+        }
+
+        private void PopulateRecentMatches_TableFixed()
+        {
+            if (data == null) return;
+
+            // 1) Basic collections
+            var automatches = data.matchHistoryStats ?? new List<MatchHistoryStat>();
+            var profiles = data.profiles ?? new List<Profile>();
+
+            // Build alias lookup
+            var aliasLookup = profiles.ToDictionary(p => p.profile_id, p => p.alias);
+
+            // Resolve searched profile id (use global profileId if set, otherwise try username textbox)
+            int searchedProfileIdLocal = profileId;
+            if (searchedProfileIdLocal == 0 && !string.IsNullOrWhiteSpace(txtUsername.Text))
+            {
+                var found = profiles.FirstOrDefault(p => string.Equals(p.alias, txtUsername.Text.Trim(), StringComparison.OrdinalIgnoreCase));
+                if (found != null) searchedProfileIdLocal = found.profile_id;
+            }
+            if (searchedProfileIdLocal == 0)
+            {
+                MessageBox.Show("Could not determine profile id for the searched user.", "Info", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+
+            // 2) Build a normalized list of matches where "self" is the searched user and "opponent" is the other side (team aggregation)
+            var recentMatches = automatches
+                .Where(m => m.matchhistorymember != null && m.matchhistorymember.Count >= 2)  // ensure players exist
+                .Select(match =>
+                {
+                    var members = match.matchhistorymember.ToList();
+                    var teams = members.GroupBy(mm => mm.teamid).ToDictionary(g => g.Key, g => g.ToList());
+
+                    var foundTeam = teams.FirstOrDefault(kvp => kvp.Value.Any(mm => mm.profile_id == searchedProfileIdLocal));
+                    if (foundTeam.Value == null) return null;
+
+                    var selfTeam = foundTeam.Value;
+                    var selfTeamId = foundTeam.Key;
+
+                    var opponentTeam = teams.Where(kvp => kvp.Key != selfTeamId).SelectMany(kvp => kvp.Value).ToList();
+                    if (opponentTeam.Count == 0) return null;
+
+                    // --- Build aliases WITH race ---
+                    string aliasSelf = string.Join(", ", selfTeam.Select(p =>
+                    {
+                        string alias = aliasLookup.ContainsKey(p.profile_id) ? aliasLookup[p.profile_id] : p.profile_id.ToString();
+                        string race = GetRaceName(p.race_id);  // helper function
+                        return $"{alias} ({race})";
+                    }));
+
+                    string aliasOpponent = string.Join(", ", opponentTeam.Select(p =>
+                    {
+                        string alias = aliasLookup.ContainsKey(p.profile_id) ? aliasLookup[p.profile_id] : p.profile_id.ToString();
+                        string race = GetRaceName(p.race_id);
+                        return $"{alias} ({race})";
+                    }));
+
+                    int side1Count = selfTeam.Count;
+                    int side2Count = opponentTeam.Count;
+
+                    // --- NEW: determine win/loss (only reliable if searched player is present)
+                    bool isWin = false;
+                    if (side1Count == 1) // 1v1, easy check
+                    {
+                        var s = selfTeam[0];
+                        isWin = s.newrating > s.oldrating;
+                    }
+                    else
+                    {
+                        // For team matches: consider win if average team rating increased
+                        int avgOld = (int)selfTeam.Average(p => p.oldrating);
+                        int avgNew = (int)selfTeam.Average(p => p.newrating);
+                        isWin = avgNew > avgOld;
+                    }
+
+                    // Ratings/records
+                    string selfRatingStr, opponentRatingStr, selfRecordStr, opponentRecordStr;
+                    if (side1Count == 1 && side2Count == 1)
+                    {
+                        var s = selfTeam[0];
+                        var o = opponentTeam[0];
+                        int changeS = s.newrating - s.oldrating;
+                        int changeO = o.newrating - o.oldrating;
+
+                        selfRatingStr = $"{s.oldrating} → {s.newrating} ({(changeS >= 0 ? "+" : "")}{changeS})";
+                        opponentRatingStr = $"{o.oldrating} → {o.newrating} ({(changeO >= 0 ? "+" : "")}{changeO})";
+                        selfRecordStr = $"{s.wins}W / {s.losses}L";
+                        opponentRecordStr = $"{o.wins}W / {o.losses}L";
+                    }
+                    else
+                    {
+                        string matchupType = $"{side1Count}v{side2Count}";
+                        selfRatingStr = $"{matchupType} Match";
+                        opponentRatingStr = $"{matchupType} Match";
+                        selfRecordStr = "-";
+                        opponentRecordStr = "-";
+                    }
+
+                    DateTime start = DateTimeOffset.FromUnixTimeSeconds(match.startgametime).LocalDateTime;
+                    DateTime end = DateTimeOffset.FromUnixTimeSeconds(match.completiontime).LocalDateTime;
+                    TimeSpan duration = end - start;
+                    string durationStr = $"{(int)duration.TotalMinutes}m {duration.Seconds}s";
+
+                    return new
+                    {
+                        Match = $"{aliasSelf} vs {aliasOpponent} ({(isWin ? "Win" : "Loss")})",
+                        SelfAlias = aliasSelf,
+                        OpponentAlias = aliasOpponent,
+                        SelfRating = selfRatingStr,
+                        SelfRecord = selfRecordStr,
+                        OpponentRating = opponentRatingStr,
+                        OpponentRecord = opponentRecordStr,
+                        Map = match.mapname,
+                        StartTime = start,
+                        EndTime = end,
+                        Duration = durationStr,
+                        Side1Count = side1Count,
+                        Side2Count = side2Count
+                    };
+                })
+
+                .Where(x => x != null)
+                .OrderByDescending(x => x.EndTime) // newest first
+                .ToList();
+
+            // 3) Build DataTable in the exact order you requested
+            var table = new DataTable();
+
+            // Get a stable header label for the searched player (use alias if available)
+            string selfAliasHeader = aliasLookup.TryGetValue(searchedProfileIdLocal, out var aliasVal) ? aliasVal : searchedProfileIdLocal.ToString();
+
+            // Column order must match the Add(...) order below
+            table.Columns.Add("Match");                              // 0
+            table.Columns.Add($"{selfAliasHeader} Rating");          // 1
+            table.Columns.Add($"{selfAliasHeader} Record");          // 2
+            table.Columns.Add("Opponent Rating");                    // 3
+            table.Columns.Add("Opponent Record");                    // 4
+            table.Columns.Add("Map");                                // 5
+            table.Columns.Add("StartTime");                          // 6
+            table.Columns.Add("EndTime");                            // 7
+            table.Columns.Add("Duration");                           // 8
+
+            // 4) Populate rows (values must match column order)
+            foreach (var m in recentMatches)
+            {
+                table.Rows.Add(
+                    m.Match,                 // Match
+                    m.SelfRating,            // searched player rating (or 2v2 placeholder)
+                    m.SelfRecord,            // searched player record (or -)
+                    m.OpponentRating,        // opponent rating or placeholder
+                    m.OpponentRecord,        // opponent record or -
+                    m.Map,                   // map
+                    m.StartTime,             // start
+                    m.EndTime,               // end
+                    m.Duration               // duration
+                );
+            }
+
+            // 5) Bind to DataGridView and adjust visuals
+            dgvProfiles.DataSource = table;
+            dgvProfiles.AutoResizeColumns(DataGridViewAutoSizeColumnsMode.AllCells);
+
+            // Labels
+            label124.Text = $"Found {dgvProfiles.RowCount} games that were automatched (Work in progress)";
+            label125.Text = $"Breakdown of {dgvProfiles.RowCount} games played (Work in progress)";
+
+            // (Optional) compute race breakdown using automatches if you still need it below...
+        }
 
         private async Task LoadLeaderboard1v1()
         {
@@ -574,6 +813,7 @@ namespace DOW_Stat_Tracker
                     .ToList();
 
                 dg1v1.DataSource = withNextPlayer;
+                await PreloadFlags(dg1v1, "Country");
 
                 // Nice headers
                 dg1v1.Columns["XP"].HeaderText = "Total XP";
@@ -652,6 +892,7 @@ namespace DOW_Stat_Tracker
                     .ToList();
 
                 dg2v2.DataSource = withNextPlayer;
+                await PreloadFlags(dg2v2, "Country");
 
                 // Nice headers
                 dg2v2.Columns["XP"].HeaderText = "Total XP";
@@ -729,6 +970,7 @@ namespace DOW_Stat_Tracker
                     .ToList();
 
                 dg3v3.DataSource = withNextPlayer;
+                await PreloadFlags(dg3v3, "Country");
 
                 dg3v3.Columns["XP"].HeaderText = "Total XP";
                 dg3v3.Columns["Rating"].HeaderText = "Rating";
@@ -805,6 +1047,7 @@ namespace DOW_Stat_Tracker
                     .ToList();
 
                 dg4v4.DataSource = withNextPlayer;
+                await PreloadFlags(dg4v4, "Country");
 
                 dg4v4.Columns["XP"].HeaderText = "Total XP";
                 dg4v4.Columns["Rating"].HeaderText = "Rating";
@@ -881,6 +1124,7 @@ namespace DOW_Stat_Tracker
                      .ToList();
 
                 dg5v5.DataSource = withNextPlayer;
+                await PreloadFlags(dg5v5, "Country");
 
                 dg5v5.Columns["XP"].HeaderText = "Total XP";
                 dg5v5.Columns["Rating"].HeaderText = "Rating";
@@ -957,6 +1201,7 @@ namespace DOW_Stat_Tracker
                     .ToList();
 
                 dg6v6.DataSource = withNextPlayer;
+                await PreloadFlags(dg6v6, "Country");
 
                 dg6v6.Columns["XP"].HeaderText = "Total XP";
                 dg6v6.Columns["Rating"].HeaderText = "Rating";
@@ -1033,6 +1278,7 @@ namespace DOW_Stat_Tracker
                      .ToList();
 
                 dg7v7.DataSource = withNextPlayer;
+                await PreloadFlags(dg7v7, "Country");
 
                 dg7v7.Columns["XP"].HeaderText = "Total XP";
                 dg7v7.Columns["Rating"].HeaderText = "Rating";
@@ -1109,6 +1355,7 @@ namespace DOW_Stat_Tracker
                      .ToList();
 
                 dg8v8.DataSource = withNextPlayer;
+                await PreloadFlags(dg8v8, "Country");
 
                 dg8v8.Columns["XP"].HeaderText = "Total XP";
                 dg8v8.Columns["Rating"].HeaderText = "Rating";
@@ -1185,6 +1432,7 @@ namespace DOW_Stat_Tracker
                     .ToList();
 
                 dg9v9.DataSource = withNextPlayer;
+                await PreloadFlags(dg9v9, "Country");
 
                 dg9v9.Columns["XP"].HeaderText = "Total XP";
                 dg9v9.Columns["Rating"].HeaderText = "Rating";
@@ -1881,6 +2129,36 @@ namespace DOW_Stat_Tracker
                 tau2v2.Columns["XPToNextPlayer"].HeaderText = "XP to Next Player";
             }
         }
+        private async Task<Image> LoadFlagFromWeb(string countryCode)
+        {
+            try
+            {
+                string url = $"https://flagcdn.com/24x18/{countryCode.ToLower()}.png";
+                using (HttpClient client = new HttpClient())
+                {
+                    var stream = await client.GetStreamAsync(url);
+                    return Image.FromStream(stream);
+                }
+            }
+            catch
+            {
+                return null; // fallback if flag not found
+            }
+        }
+        private async Task PreloadFlags(DataGridView dgv, string columnName)
+        {
+            foreach (DataGridViewRow row in dgv.Rows)
+            {
+                if (row.Cells[columnName].Value is string country && !string.IsNullOrEmpty(country))
+                {
+                    if (!FlagCache.ContainsKey(country))
+                    {
+                        FlagCache[country] = await LoadFlagFromWeb(country);
+                    }
+                }
+            }
+        }
+
         private void dg1v1_CellPainting(object sender, DataGridViewCellPaintingEventArgs e)
         {
             DataGridViewProgressHelper.HandleCellPainting(
@@ -1890,6 +2168,56 @@ namespace DOW_Stat_Tracker
         "XPToNextPlayer",   // column with XP to next player
         Ranks               // pass in your rank list
     );
+
+
+            if (e.RowIndex < 0 || e.ColumnIndex < 0)
+                return;
+
+            if (dg1v1.Columns[e.ColumnIndex].Name == "Country")
+            {
+                e.Handled = true;
+
+                // Paint background + border
+                e.PaintBackground(e.ClipBounds, true);
+                e.Paint(e.ClipBounds, DataGridViewPaintParts.Border);
+
+                string country = e.FormattedValue?.ToString();
+                if (!string.IsNullOrEmpty(country))
+                {
+                    if (FlagCache.TryGetValue(country, out Image flag) && flag != null)
+                    {
+                        int offsetX = e.CellBounds.Left + 2;
+                        int offsetY = e.CellBounds.Top + (e.CellBounds.Height - 18) / 2;
+
+                        // Draw flag
+                        e.Graphics.DrawImage(flag, new Rectangle(offsetX, offsetY, 24, 18));
+                        offsetX += 28;
+
+                        // Draw text
+                        TextRenderer.DrawText(
+                            e.Graphics,
+                            country,
+                            e.CellStyle.Font,
+                            new Point(offsetX, e.CellBounds.Top + (e.CellBounds.Height - e.CellStyle.Font.Height) / 2),
+                            e.CellStyle.ForeColor
+                        );
+                    }
+                    else
+                    {
+                        // Fallback: just text
+                        TextRenderer.DrawText(
+                            e.Graphics,
+                            country,
+                            e.CellStyle.Font,
+                            e.CellBounds,
+                            e.CellStyle.ForeColor,
+                            TextFormatFlags.VerticalCenter | TextFormatFlags.Left
+                        );
+                    }
+                }
+            }
+        
+            
         }
         private void dg2v2_CellPainting(object sender, DataGridViewCellPaintingEventArgs e)
         {
@@ -1900,6 +2228,52 @@ namespace DOW_Stat_Tracker
         "XPToNextPlayer",   // column with XP to next player
         Ranks               // pass in your rank list
     );
+            if (e.RowIndex < 0 || e.ColumnIndex < 0)
+                return;
+
+            if (dg2v2.Columns[e.ColumnIndex].Name == "Country")
+            {
+                e.Handled = true;
+
+                // Paint background + border
+                e.PaintBackground(e.ClipBounds, true);
+                e.Paint(e.ClipBounds, DataGridViewPaintParts.Border);
+
+                string country = e.FormattedValue?.ToString();
+                if (!string.IsNullOrEmpty(country))
+                {
+                    if (FlagCache.TryGetValue(country, out Image flag) && flag != null)
+                    {
+                        int offsetX = e.CellBounds.Left + 2;
+                        int offsetY = e.CellBounds.Top + (e.CellBounds.Height - 18) / 2;
+
+                        // Draw flag
+                        e.Graphics.DrawImage(flag, new Rectangle(offsetX, offsetY, 24, 18));
+                        offsetX += 28;
+
+                        // Draw text
+                        TextRenderer.DrawText(
+                            e.Graphics,
+                            country,
+                            e.CellStyle.Font,
+                            new Point(offsetX, e.CellBounds.Top + (e.CellBounds.Height - e.CellStyle.Font.Height) / 2),
+                            e.CellStyle.ForeColor
+                        );
+                    }
+                    else
+                    {
+                        // Fallback: just text
+                        TextRenderer.DrawText(
+                            e.Graphics,
+                            country,
+                            e.CellStyle.Font,
+                            e.CellBounds,
+                            e.CellStyle.ForeColor,
+                            TextFormatFlags.VerticalCenter | TextFormatFlags.Left
+                        );
+                    }
+                }
+            }
         }
         private void dg3v3_CellPainting(object sender, DataGridViewCellPaintingEventArgs e)
         {
@@ -1910,6 +2284,52 @@ namespace DOW_Stat_Tracker
         "XPToNextPlayer",   // column with XP to next player
         Ranks               // pass in your rank list
     );
+            if (e.RowIndex < 0 || e.ColumnIndex < 0)
+                return;
+
+            if (dg3v3.Columns[e.ColumnIndex].Name == "Country")
+            {
+                e.Handled = true;
+
+                // Paint background + border
+                e.PaintBackground(e.ClipBounds, true);
+                e.Paint(e.ClipBounds, DataGridViewPaintParts.Border);
+
+                string country = e.FormattedValue?.ToString();
+                if (!string.IsNullOrEmpty(country))
+                {
+                    if (FlagCache.TryGetValue(country, out Image flag) && flag != null)
+                    {
+                        int offsetX = e.CellBounds.Left + 2;
+                        int offsetY = e.CellBounds.Top + (e.CellBounds.Height - 18) / 2;
+
+                        // Draw flag
+                        e.Graphics.DrawImage(flag, new Rectangle(offsetX, offsetY, 24, 18));
+                        offsetX += 28;
+
+                        // Draw text
+                        TextRenderer.DrawText(
+                            e.Graphics,
+                            country,
+                            e.CellStyle.Font,
+                            new Point(offsetX, e.CellBounds.Top + (e.CellBounds.Height - e.CellStyle.Font.Height) / 2),
+                            e.CellStyle.ForeColor
+                        );
+                    }
+                    else
+                    {
+                        // Fallback: just text
+                        TextRenderer.DrawText(
+                            e.Graphics,
+                            country,
+                            e.CellStyle.Font,
+                            e.CellBounds,
+                            e.CellStyle.ForeColor,
+                            TextFormatFlags.VerticalCenter | TextFormatFlags.Left
+                        );
+                    }
+                }
+            }
         }
         private void dg4v4_CellPainting(object sender, DataGridViewCellPaintingEventArgs e)
         {
@@ -1920,6 +2340,52 @@ namespace DOW_Stat_Tracker
         "XPToNextPlayer",   // column with XP to next player
         Ranks               // pass in your rank list
     );
+            if (e.RowIndex < 0 || e.ColumnIndex < 0)
+                return;
+
+            if (dg4v4.Columns[e.ColumnIndex].Name == "Country")
+            {
+                e.Handled = true;
+
+                // Paint background + border
+                e.PaintBackground(e.ClipBounds, true);
+                e.Paint(e.ClipBounds, DataGridViewPaintParts.Border);
+
+                string country = e.FormattedValue?.ToString();
+                if (!string.IsNullOrEmpty(country))
+                {
+                    if (FlagCache.TryGetValue(country, out Image flag) && flag != null)
+                    {
+                        int offsetX = e.CellBounds.Left + 2;
+                        int offsetY = e.CellBounds.Top + (e.CellBounds.Height - 18) / 2;
+
+                        // Draw flag
+                        e.Graphics.DrawImage(flag, new Rectangle(offsetX, offsetY, 24, 18));
+                        offsetX += 28;
+
+                        // Draw text
+                        TextRenderer.DrawText(
+                            e.Graphics,
+                            country,
+                            e.CellStyle.Font,
+                            new Point(offsetX, e.CellBounds.Top + (e.CellBounds.Height - e.CellStyle.Font.Height) / 2),
+                            e.CellStyle.ForeColor
+                        );
+                    }
+                    else
+                    {
+                        // Fallback: just text
+                        TextRenderer.DrawText(
+                            e.Graphics,
+                            country,
+                            e.CellStyle.Font,
+                            e.CellBounds,
+                            e.CellStyle.ForeColor,
+                            TextFormatFlags.VerticalCenter | TextFormatFlags.Left
+                        );
+                    }
+                }
+            }
         }
         private void dg5v5_CellPainting(object sender, DataGridViewCellPaintingEventArgs e)
         {
@@ -1930,6 +2396,52 @@ namespace DOW_Stat_Tracker
         "XPToNextPlayer",   // column with XP to next player
         Ranks               // pass in your rank list
     );
+            if (e.RowIndex < 0 || e.ColumnIndex < 0)
+                return;
+
+            if (dg5v5.Columns[e.ColumnIndex].Name == "Country")
+            {
+                e.Handled = true;
+
+                // Paint background + border
+                e.PaintBackground(e.ClipBounds, true);
+                e.Paint(e.ClipBounds, DataGridViewPaintParts.Border);
+
+                string country = e.FormattedValue?.ToString();
+                if (!string.IsNullOrEmpty(country))
+                {
+                    if (FlagCache.TryGetValue(country, out Image flag) && flag != null)
+                    {
+                        int offsetX = e.CellBounds.Left + 2;
+                        int offsetY = e.CellBounds.Top + (e.CellBounds.Height - 18) / 2;
+
+                        // Draw flag
+                        e.Graphics.DrawImage(flag, new Rectangle(offsetX, offsetY, 24, 18));
+                        offsetX += 28;
+
+                        // Draw text
+                        TextRenderer.DrawText(
+                            e.Graphics,
+                            country,
+                            e.CellStyle.Font,
+                            new Point(offsetX, e.CellBounds.Top + (e.CellBounds.Height - e.CellStyle.Font.Height) / 2),
+                            e.CellStyle.ForeColor
+                        );
+                    }
+                    else
+                    {
+                        // Fallback: just text
+                        TextRenderer.DrawText(
+                            e.Graphics,
+                            country,
+                            e.CellStyle.Font,
+                            e.CellBounds,
+                            e.CellStyle.ForeColor,
+                            TextFormatFlags.VerticalCenter | TextFormatFlags.Left
+                        );
+                    }
+                }
+            }
         }
         private void dg6v6_CellPainting(object sender, DataGridViewCellPaintingEventArgs e)
         {
@@ -1940,6 +2452,52 @@ namespace DOW_Stat_Tracker
         "XPToNextPlayer",   // column with XP to next player
         Ranks               // pass in your rank list
     );
+            if (e.RowIndex < 0 || e.ColumnIndex < 0)
+                return;
+
+            if (dg6v6.Columns[e.ColumnIndex].Name == "Country")
+            {
+                e.Handled = true;
+
+                // Paint background + border
+                e.PaintBackground(e.ClipBounds, true);
+                e.Paint(e.ClipBounds, DataGridViewPaintParts.Border);
+
+                string country = e.FormattedValue?.ToString();
+                if (!string.IsNullOrEmpty(country))
+                {
+                    if (FlagCache.TryGetValue(country, out Image flag) && flag != null)
+                    {
+                        int offsetX = e.CellBounds.Left + 2;
+                        int offsetY = e.CellBounds.Top + (e.CellBounds.Height - 18) / 2;
+
+                        // Draw flag
+                        e.Graphics.DrawImage(flag, new Rectangle(offsetX, offsetY, 24, 18));
+                        offsetX += 28;
+
+                        // Draw text
+                        TextRenderer.DrawText(
+                            e.Graphics,
+                            country,
+                            e.CellStyle.Font,
+                            new Point(offsetX, e.CellBounds.Top + (e.CellBounds.Height - e.CellStyle.Font.Height) / 2),
+                            e.CellStyle.ForeColor
+                        );
+                    }
+                    else
+                    {
+                        // Fallback: just text
+                        TextRenderer.DrawText(
+                            e.Graphics,
+                            country,
+                            e.CellStyle.Font,
+                            e.CellBounds,
+                            e.CellStyle.ForeColor,
+                            TextFormatFlags.VerticalCenter | TextFormatFlags.Left
+                        );
+                    }
+                }
+            }
         }
         private void dg7v7_CellPainting(object sender, DataGridViewCellPaintingEventArgs e)
         {
@@ -1950,6 +2508,52 @@ namespace DOW_Stat_Tracker
         "XPToNextPlayer",   // column with XP to next player
         Ranks               // pass in your rank list
     );
+            if (e.RowIndex < 0 || e.ColumnIndex < 0)
+                return;
+
+            if (dg7v7.Columns[e.ColumnIndex].Name == "Country")
+            {
+                e.Handled = true;
+
+                // Paint background + border
+                e.PaintBackground(e.ClipBounds, true);
+                e.Paint(e.ClipBounds, DataGridViewPaintParts.Border);
+
+                string country = e.FormattedValue?.ToString();
+                if (!string.IsNullOrEmpty(country))
+                {
+                    if (FlagCache.TryGetValue(country, out Image flag) && flag != null)
+                    {
+                        int offsetX = e.CellBounds.Left + 2;
+                        int offsetY = e.CellBounds.Top + (e.CellBounds.Height - 18) / 2;
+
+                        // Draw flag
+                        e.Graphics.DrawImage(flag, new Rectangle(offsetX, offsetY, 24, 18));
+                        offsetX += 28;
+
+                        // Draw text
+                        TextRenderer.DrawText(
+                            e.Graphics,
+                            country,
+                            e.CellStyle.Font,
+                            new Point(offsetX, e.CellBounds.Top + (e.CellBounds.Height - e.CellStyle.Font.Height) / 2),
+                            e.CellStyle.ForeColor
+                        );
+                    }
+                    else
+                    {
+                        // Fallback: just text
+                        TextRenderer.DrawText(
+                            e.Graphics,
+                            country,
+                            e.CellStyle.Font,
+                            e.CellBounds,
+                            e.CellStyle.ForeColor,
+                            TextFormatFlags.VerticalCenter | TextFormatFlags.Left
+                        );
+                    }
+                }
+            }
         }
         private void dg8v8_CellPainting(object sender, DataGridViewCellPaintingEventArgs e)
         {
@@ -1960,6 +2564,52 @@ namespace DOW_Stat_Tracker
         "XPToNextPlayer",   // column with XP to next player
         Ranks               // pass in your rank list
     );
+            if (e.RowIndex < 0 || e.ColumnIndex < 0)
+                return;
+
+            if (dg8v8.Columns[e.ColumnIndex].Name == "Country")
+            {
+                e.Handled = true;
+
+                // Paint background + border
+                e.PaintBackground(e.ClipBounds, true);
+                e.Paint(e.ClipBounds, DataGridViewPaintParts.Border);
+
+                string country = e.FormattedValue?.ToString();
+                if (!string.IsNullOrEmpty(country))
+                {
+                    if (FlagCache.TryGetValue(country, out Image flag) && flag != null)
+                    {
+                        int offsetX = e.CellBounds.Left + 2;
+                        int offsetY = e.CellBounds.Top + (e.CellBounds.Height - 18) / 2;
+
+                        // Draw flag
+                        e.Graphics.DrawImage(flag, new Rectangle(offsetX, offsetY, 24, 18));
+                        offsetX += 28;
+
+                        // Draw text
+                        TextRenderer.DrawText(
+                            e.Graphics,
+                            country,
+                            e.CellStyle.Font,
+                            new Point(offsetX, e.CellBounds.Top + (e.CellBounds.Height - e.CellStyle.Font.Height) / 2),
+                            e.CellStyle.ForeColor
+                        );
+                    }
+                    else
+                    {
+                        // Fallback: just text
+                        TextRenderer.DrawText(
+                            e.Graphics,
+                            country,
+                            e.CellStyle.Font,
+                            e.CellBounds,
+                            e.CellStyle.ForeColor,
+                            TextFormatFlags.VerticalCenter | TextFormatFlags.Left
+                        );
+                    }
+                }
+            }
         }
         private void dg9v9_CellPainting(object sender, DataGridViewCellPaintingEventArgs e)
         {
@@ -1970,6 +2620,52 @@ namespace DOW_Stat_Tracker
         "XPToNextPlayer",   // column with XP to next player
         Ranks               // pass in your rank list
     );
+            if (e.RowIndex < 0 || e.ColumnIndex < 0)
+                return;
+
+            if (dg9v9.Columns[e.ColumnIndex].Name == "Country")
+            {
+                e.Handled = true;
+
+                // Paint background + border
+                e.PaintBackground(e.ClipBounds, true);
+                e.Paint(e.ClipBounds, DataGridViewPaintParts.Border);
+
+                string country = e.FormattedValue?.ToString();
+                if (!string.IsNullOrEmpty(country))
+                {
+                    if (FlagCache.TryGetValue(country, out Image flag) && flag != null)
+                    {
+                        int offsetX = e.CellBounds.Left + 2;
+                        int offsetY = e.CellBounds.Top + (e.CellBounds.Height - 18) / 2;
+
+                        // Draw flag
+                        e.Graphics.DrawImage(flag, new Rectangle(offsetX, offsetY, 24, 18));
+                        offsetX += 28;
+
+                        // Draw text
+                        TextRenderer.DrawText(
+                            e.Graphics,
+                            country,
+                            e.CellStyle.Font,
+                            new Point(offsetX, e.CellBounds.Top + (e.CellBounds.Height - e.CellStyle.Font.Height) / 2),
+                            e.CellStyle.ForeColor
+                        );
+                    }
+                    else
+                    {
+                        // Fallback: just text
+                        TextRenderer.DrawText(
+                            e.Graphics,
+                            country,
+                            e.CellStyle.Font,
+                            e.CellBounds,
+                            e.CellStyle.ForeColor,
+                            TextFormatFlags.VerticalCenter | TextFormatFlags.Left
+                        );
+                    }
+                }
+            }
         }
         private void dg10v10_CellPainting(object sender, DataGridViewCellPaintingEventArgs e)
         {
@@ -1980,6 +2676,7 @@ namespace DOW_Stat_Tracker
         "XPToNextPlayer",   // column with XP to next player
         Ranks               // pass in your rank list
     );
+
         }
         private void dg11v11_CellPainting(object sender, DataGridViewCellPaintingEventArgs e)
         {
@@ -2767,11 +3464,29 @@ namespace DOW_Stat_Tracker
             top100Players.Columns["XPToNextRank"].HeaderText = "XP to Next Rank";
             top100Players.Columns["XPToNextPlayer"].HeaderText = "XP to Next Player";
         }
-
+        private static async Task<bool> CheckInternetConnection()
+        {
+            try
+            {
+                using (var client = new HttpClient())
+                {
+                    client.Timeout = TimeSpan.FromSeconds(3);
+                    using (var response = await client.GetAsync("http://clients3.google.com/generate_204"))
+                    {
+                        return response.StatusCode == System.Net.HttpStatusCode.NoContent;
+                    }
+                }
+            }
+            catch
+            {
+                return false;
+            }
+        }
         private async void Form1_Load(object sender, EventArgs e)
         {
             try
             {
+                
                 // Try to upgrade user settings if needed
                 if (Properties.Settings.Default.UpgradeRequired)
                 {
@@ -2830,6 +3545,8 @@ namespace DOW_Stat_Tracker
             spacemarines2v2.CellPainting += dg17v17_CellPainting;
             tau2v2.CellPainting += dg18v18_CellPainting;
             top100Players.CellPainting += top100Players_CellPainting;
+            dgvProfiles.CellFormatting += dgvProfiles_CellFormatting;
+
             txtUsername.Text = Properties.Settings.Default.LastUsername;
             if (Properties.Settings.Default.AutoRefresh == true)
             {
@@ -2846,29 +3563,44 @@ namespace DOW_Stat_Tracker
                     timer1.Enabled = false;
                 }
             }
-            if (!string.IsNullOrWhiteSpace(txtUsername.Text))
+            panel4v40.Bounds = this.ClientRectangle;
+            panel4v40.Visible = true;
+            pictureBox1.Visible = true;
+            if (!await CheckInternetConnection())
             {
-                btnLoadJson.PerformClick();
+                MessageBox.Show("No internet detected or connection is too slow to complete a request!. Please check your network.", "No Connection", MessageBoxButtons.OK,MessageBoxIcon.Stop);
+                panel4v40.Visible = false;
+                pictureBox1.Visible = false;
+                return;
             }
-            await LoadLeaderboard1v1();
-            await LoadLeaderboard2v2();
-            await LoadLeaderboard3v3();
-            await LoadLeaderboard4v4();
-            await LoadLeaderboard5v5();
-            await LoadLeaderboard6v6();
-            await LoadLeaderboard7v7();
-            await LoadLeaderboard8v8();
-            await LoadLeaderboard9v9();
-            await LoadLeaderboard10v10();
-            await LoadLeaderboard11v11();
-            await LoadLeaderboard12v12();
-            await LoadLeaderboard13v13();
-            await LoadLeaderboard14v14();
-            await LoadLeaderboard15v15();
-            await LoadLeaderboard16v16();
-            await LoadLeaderboard17v17();
-            await LoadLeaderboard18v18();
-            await LoadTop100();
+            else {
+                if (!string.IsNullOrWhiteSpace(txtUsername.Text))
+                {
+                    btnLoadJson.PerformClick();
+                }
+                await LoadLeaderboard1v1();
+                await LoadLeaderboard2v2();
+                await LoadLeaderboard3v3();
+                await LoadLeaderboard4v4();
+                await LoadLeaderboard5v5();
+                await LoadLeaderboard6v6();
+                await LoadLeaderboard7v7();
+                await LoadLeaderboard8v8();
+                await LoadLeaderboard9v9();
+                await LoadLeaderboard10v10();
+                await LoadLeaderboard11v11();
+                await LoadLeaderboard12v12();
+                await LoadLeaderboard13v13();
+                await LoadLeaderboard14v14();
+                await LoadLeaderboard15v15();
+                await LoadLeaderboard16v16();
+                await LoadLeaderboard17v17();
+                await LoadLeaderboard18v18();
+                await LoadTop100();
+                panel4v40.Visible = false;
+                pictureBox1.Visible = false;
+            }
+                
         }
 
         private void pictureBox11_Click(object sender, EventArgs e)
@@ -3028,25 +3760,35 @@ namespace DOW_Stat_Tracker
             panel4v40.Bounds = this.ClientRectangle;
             panel4v40.Visible = true;
             pictureBox1.Visible = true;
-            await LoadLeaderboard1v1();
-            await LoadLeaderboard2v2();
-            await LoadLeaderboard3v3();
-            await LoadLeaderboard4v4();
-            await LoadLeaderboard5v5();
-            await LoadLeaderboard6v6();
-            await LoadLeaderboard7v7();
-            await LoadLeaderboard8v8();
-            await LoadLeaderboard9v9();
-            await LoadLeaderboard10v10();
-            await LoadLeaderboard11v11();
-            await LoadLeaderboard12v12();
-            await LoadLeaderboard13v13();
-            await LoadLeaderboard14v14();
-            await LoadLeaderboard15v15();
-            await LoadLeaderboard16v16();
-            await LoadLeaderboard17v17();
-            await LoadLeaderboard18v18();
-            btnLoadJson.PerformClick();
+            if (!await CheckInternetConnection())
+            {
+                MessageBox.Show("No internet detected or connection is too slow to complete a request!. Please check your network.", "No Connection", MessageBoxButtons.OK, MessageBoxIcon.Stop);
+                panel4v40.Visible = false;
+                pictureBox1.Visible = false;
+                return;
+            }
+            else
+            {
+                await LoadLeaderboard1v1();
+                await LoadLeaderboard2v2();
+                await LoadLeaderboard3v3();
+                await LoadLeaderboard4v4();
+                await LoadLeaderboard5v5();
+                await LoadLeaderboard6v6();
+                await LoadLeaderboard7v7();
+                await LoadLeaderboard8v8();
+                await LoadLeaderboard9v9();
+                await LoadLeaderboard10v10();
+                await LoadLeaderboard11v11();
+                await LoadLeaderboard12v12();
+                await LoadLeaderboard13v13();
+                await LoadLeaderboard14v14();
+                await LoadLeaderboard15v15();
+                await LoadLeaderboard16v16();
+                await LoadLeaderboard17v17();
+                await LoadLeaderboard18v18();
+                btnLoadJson.PerformClick();
+            }
         }
     }
 }

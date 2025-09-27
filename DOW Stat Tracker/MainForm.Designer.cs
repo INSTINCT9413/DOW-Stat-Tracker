@@ -208,6 +208,7 @@
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
             this.label124 = new System.Windows.Forms.Label();
             this.dgvProfiles = new System.Windows.Forms.DataGridView();
+            this.label170 = new System.Windows.Forms.Label();
             this.label125 = new System.Windows.Forms.Label();
             this.dgvRaces = new System.Windows.Forms.DataGridView();
             this.tabControl1 = new System.Windows.Forms.TabControl();
@@ -399,10 +400,11 @@
             this.pictureBox15 = new System.Windows.Forms.PictureBox();
             this.timer1 = new System.Windows.Forms.Timer(this.components);
             this.panel4v40 = new System.Windows.Forms.Panel();
+            this.splitContainer2 = new System.Windows.Forms.SplitContainer();
             this.pictureBox19 = new System.Windows.Forms.PictureBox();
+            this.label179 = new System.Windows.Forms.Label();
             this.button19 = new System.Windows.Forms.Button();
             this.rootBindingSource = new System.Windows.Forms.BindingSource(this.components);
-            this.label170 = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.matchHistoryStatsBindingSource)).BeginInit();
@@ -529,6 +531,10 @@
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox14)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox15)).BeginInit();
             this.panel4v40.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.splitContainer2)).BeginInit();
+            this.splitContainer2.Panel1.SuspendLayout();
+            this.splitContainer2.Panel2.SuspendLayout();
+            this.splitContainer2.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox19)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.rootBindingSource)).BeginInit();
             this.SuspendLayout();
@@ -572,8 +578,8 @@
             // 
             // pictureBox1
             // 
-            this.pictureBox1.Image = global::DOW_Stat_Tracker.Properties.Resources.ring_alt;
-            this.pictureBox1.Location = new System.Drawing.Point(965, 15);
+            this.pictureBox1.Image = global::DOW_Stat_Tracker.Properties.Resources.download;
+            this.pictureBox1.Location = new System.Drawing.Point(870, 12);
             this.pictureBox1.Name = "pictureBox1";
             this.pictureBox1.Size = new System.Drawing.Size(45, 45);
             this.pictureBox1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
@@ -2452,6 +2458,16 @@
             this.dgvProfiles.Name = "dgvProfiles";
             this.dgvProfiles.Size = new System.Drawing.Size(1254, 355);
             this.dgvProfiles.TabIndex = 4;
+            // 
+            // label170
+            // 
+            this.label170.AutoSize = true;
+            this.label170.Font = new System.Drawing.Font("Segoe UI Light", 25F);
+            this.label170.Location = new System.Drawing.Point(647, 84);
+            this.label170.Name = "label170";
+            this.label170.Size = new System.Drawing.Size(381, 46);
+            this.label170.TabIndex = 6;
+            this.label170.Text = "Currently working on this!";
             // 
             // label125
             // 
@@ -4471,23 +4487,52 @@
             // panel4v40
             // 
             this.panel4v40.BackColor = System.Drawing.Color.DarkGray;
-            this.panel4v40.Controls.Add(this.pictureBox19);
-            this.panel4v40.Location = new System.Drawing.Point(711, 4);
+            this.panel4v40.Controls.Add(this.splitContainer2);
+            this.panel4v40.Location = new System.Drawing.Point(452, 7);
             this.panel4v40.Name = "panel4v40";
-            this.panel4v40.Size = new System.Drawing.Size(145, 70);
+            this.panel4v40.Size = new System.Drawing.Size(234, 127);
             this.panel4v40.TabIndex = 18;
             this.panel4v40.Visible = false;
+            // 
+            // splitContainer2
+            // 
+            this.splitContainer2.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.splitContainer2.Location = new System.Drawing.Point(0, 0);
+            this.splitContainer2.Name = "splitContainer2";
+            this.splitContainer2.Orientation = System.Windows.Forms.Orientation.Horizontal;
+            // 
+            // splitContainer2.Panel1
+            // 
+            this.splitContainer2.Panel1.Controls.Add(this.pictureBox19);
+            // 
+            // splitContainer2.Panel2
+            // 
+            this.splitContainer2.Panel2.Controls.Add(this.label179);
+            this.splitContainer2.Size = new System.Drawing.Size(234, 127);
+            this.splitContainer2.SplitterDistance = 86;
+            this.splitContainer2.TabIndex = 10;
             // 
             // pictureBox19
             // 
             this.pictureBox19.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.pictureBox19.Image = global::DOW_Stat_Tracker.Properties.Resources.ring_alt;
+            this.pictureBox19.Image = global::DOW_Stat_Tracker.Properties.Resources.loading4;
             this.pictureBox19.Location = new System.Drawing.Point(0, 0);
             this.pictureBox19.Name = "pictureBox19";
-            this.pictureBox19.Size = new System.Drawing.Size(145, 70);
+            this.pictureBox19.Size = new System.Drawing.Size(234, 86);
             this.pictureBox19.SizeMode = System.Windows.Forms.PictureBoxSizeMode.CenterImage;
             this.pictureBox19.TabIndex = 8;
             this.pictureBox19.TabStop = false;
+            // 
+            // label179
+            // 
+            this.label179.Anchor = System.Windows.Forms.AnchorStyles.Top;
+            this.label179.AutoSize = true;
+            this.label179.Font = new System.Drawing.Font("Segoe UI Light", 25F);
+            this.label179.Location = new System.Drawing.Point(-63, 6);
+            this.label179.Name = "label179";
+            this.label179.Size = new System.Drawing.Size(360, 46);
+            this.label179.TabIndex = 9;
+            this.label179.Text = "Retrieving API Response";
             // 
             // button19
             // 
@@ -4503,21 +4548,11 @@
             // 
             this.rootBindingSource.DataSource = typeof(DOW_Stat_Tracker.Root);
             // 
-            // label170
-            // 
-            this.label170.AutoSize = true;
-            this.label170.Font = new System.Drawing.Font("Segoe UI Light", 25F);
-            this.label170.Location = new System.Drawing.Point(647, 84);
-            this.label170.Name = "label170";
-            this.label170.Size = new System.Drawing.Size(381, 46);
-            this.label170.TabIndex = 6;
-            this.label170.Text = "Currently working on this!";
-            // 
-            // Form1
+            // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.BackColor = System.Drawing.SystemColors.Control;
+            this.BackColor = System.Drawing.Color.White;
             this.BackgroundImageLayout = System.Windows.Forms.ImageLayout.None;
             this.ClientSize = new System.Drawing.Size(1268, 682);
             this.Controls.Add(this.panel4v40);
@@ -4537,7 +4572,7 @@
             this.DoubleBuffered = true;
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.Fixed3D;
             this.MaximizeBox = false;
-            this.Name = "Form1";
+            this.Name = "MainForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Form1";
             this.Load += new System.EventHandler(this.Form1_Load);
@@ -4701,6 +4736,11 @@
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox14)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox15)).EndInit();
             this.panel4v40.ResumeLayout(false);
+            this.splitContainer2.Panel1.ResumeLayout(false);
+            this.splitContainer2.Panel2.ResumeLayout(false);
+            this.splitContainer2.Panel2.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.splitContainer2)).EndInit();
+            this.splitContainer2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox19)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.rootBindingSource)).EndInit();
             this.ResumeLayout(false);
@@ -5083,6 +5123,8 @@
         private System.Windows.Forms.Label label178;
         private System.Windows.Forms.DataGridView top100Players;
         private System.Windows.Forms.Label label170;
+        private System.Windows.Forms.Label label179;
+        private System.Windows.Forms.SplitContainer splitContainer2;
     }
 }
 
